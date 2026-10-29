@@ -288,6 +288,9 @@
         .car-hero { display: flex; align-items: center; justify-content: center; height: 90px; margin-top: 8px; }
         .cards-row { display: flex; gap: 14px; width: 100%; }
         .home-card.half { flex: 1; min-width: 0; justify-content: center; }
+        .cards-row { gap: 8px; }
+        .home-card.third { flex: 1; min-width: 0; justify-content: center; gap: 8px; padding: 16px 6px; }
+        .home-card-title.sec { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.6); }
         .home-card-title { font-size: 16px; font-weight: bold; color: #fff; }
         .home-card .status-light { margin: 0; flex: none; }
 
@@ -815,7 +818,7 @@
         .chev { display: inline-block; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 7px solid #6f6f6f; margin-left: 9px; vertical-align: middle; }
         .row-off .chev { opacity: 1; }
         .grp-more { display: flex; justify-content: center; margin-top: 16px; }
-        .grp-pills { margin-bottom: 24px; padding: 4px; border-radius: 14px; background: #1a1a1a; }
+        .grp-pills { margin-bottom: 50px; padding: 4px; border-radius: 14px; background: #1a1a1a; }
         .grp-pills .seg-row { gap: 2px; }
         .grp-pills .seg-tab { flex: 1 1 auto; font-size: 12px; padding: 9px 6px; }
         .kp-edit { margin-right: 8px; background: #2f6fb5; color: #fff; border: none; border-radius: 6px; padding: 4px 12px; font-size: 12px; font-weight: bold; font-family: inherit; cursor: pointer; }
@@ -984,10 +987,10 @@
 #bu-root #bu-layer{z-index:36200}
 #bu-root #bu-layer2{z-index:36300}
 #bu-root .btn,#bu-root .key,#bu-root .mini,#bu-root .chk,#bu-root .fieldbtn,#bu-root .cal-day,#bu-root .cal-nav button{font-family:inherit}
-.grp-update{display:flex;flex-direction:column;align-items:center;width:100%;margin:6px 0 6px}
-.grp-update-btn{width:50%;min-width:120px;min-height:48px;padding:0 10px;border-radius:12px;border:0;background:#d4a017;color:#1a1405;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.grp-update{display:flex;flex-direction:row;align-items:stretch;gap:10px;width:100%;margin:50px 0 6px}
+.grp-update-btn{flex:1;min-width:0;height:54px;padding:0 10px;border-radius:12px;border:0;background:#d4a017;color:#1a1405;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .grp-update-btn:active{filter:brightness(.92)}
-.grp-back-btn{width:100%;height:54px;margin-top:10px;border-radius:12px;border:0;background:#4b5f78;color:#fff;font-family:inherit;font-weight:bold;font-size:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.grp-back-btn{flex:1;min-width:0;height:54px;margin-top:0;border-radius:12px;border:0;background:#4b5f78;color:#fff;font-family:inherit;font-weight:bold;font-size:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .grp-back-btn:active{background:#3d4e63}
 
 
@@ -1526,10 +1529,11 @@
         let appStarted = false;
         let pendingImportData = null;
 
-        // ثلاث مجموعات: الوثائق والمراقبة ثم الزيت والفلاتر والحزام ثم الصيانة العامة
-        const MODULE_ORDER = ['docs', 'oil', 'general'];
-        const MODULE_NAMES = { docs: 'الوثائق والمراقبة', oil: 'الزيت والفلاتر والحزام', general: 'الصيانة العامة' };
-        const LEGACY_MODULES = ['docs', 'oil', 'belts', 'general', 'fluids'];   // أماكن المؤشرات في الصيغ القديمة
+        // أربع مجموعات: الوثائق ثم الزيت ثم الصيانة ثم الإضافية (ما يختلف من سيارة لسيارة ومن سائق لآخر)
+        const MODULE_ORDER = ['docs', 'oil', 'general', 'extra'];
+        const MAIN_MODULES = ['docs', 'oil', 'general'];   // البطاقات الرئيسية الثلاث في صفحة البطاقات
+        const MODULE_NAMES = { docs: 'الوثائق', oil: 'الزيت', general: 'الصيانة', extra: 'إضافية' };
+        const LEGACY_MODULES = ['docs', 'oil', 'belts', 'general', 'fluids', 'extra'];   // أماكن المؤشرات في الصيغ القديمة
 
         // مؤشر مرتبط (link): يُحدَّد موعده بـ «التغيير القادم» أو «×2» للمؤشر الرئيسي (المرساة) بدل الكيلومتر.
         // counter: اسم العدّاد داخل records، ويرتفع بواحد كلما غُيّرت المرساة (وضع «تغيير القطعة»).
@@ -1568,8 +1572,6 @@
             docs: [
                 { key: 'insurance', label: 'التأمين', type: 'time', presets: [3, 6, 12] },
                 { key: 'techControl', label: 'المراقبة التقنية', type: 'time', presets: [12, 24, 36] },
-                { key: 'gplControl', label: 'مراقبة GPL', type: 'time', presets: [12, 24, 36] },
-                { key: 'extinguisherControl', label: 'مراقبة الطفاية', type: 'time', presets: [6, 12, 24] },
                 { key: 'drivingLicense', label: 'رخصة السياقة', type: 'time', presets: [36, 60, 120] },
                 { key: 'vignette', label: 'القسيمة', type: 'time', presets: [12, 24, 36] }
             ],
@@ -1577,18 +1579,22 @@
                 { key: 'engineOilNextOdo', label: 'زيت المحرك', type: 'km', defaultMax: '10000', presets: [5000, 7500, 10000, 12000, 15000], spec: { label: 'نوع الزيت', presets: ['5W-30', '5W-40', '10W-40', '15W-40', '0W-30'], warn: 'درجة الزيت (اللزوجة) يحدّدها مصنّع محركك. استعمال درجة غير الموصى بها قد يضعف حماية المحرك أو يزيد استهلاك الوقود.' } },
                 { key: 'oilFilter', label: 'فلتر الزيت', type: 'km', defaultMax: '10000', presets: [5000, 7500, 10000, 12000, 15000] },
                 { key: 'airFilter', label: 'فلتر الهواء', type: 'km', defaultMax: '20000', presets: [10000, 15000, 20000, 25000, 30000] },
-                { key: 'fuelFilter', label: 'فلتر الوقود', type: 'km', defaultMax: '30000', presets: [10000, 15000, 20000, 30000, 40000] },
-                { key: 'acFilter', label: 'فلتر المكيف', type: 'km', defaultMax: '20000', presets: [10000, 15000, 20000, 25000, 30000] },
-                { key: 'gearOil', label: 'زيت علبة السرعة', type: 'km', defaultMax: '40000', presets: [40000, 60000, 80000, 100000, 120000], spec: { label: 'نوع زيت العلبة', presets: ['ATF', '75W-80', '75W-90', '80W-90', 'CVT'], warn: 'أنواع زيوت علب السرعة غير قابلة للتبادل: الأوتوماتيكية والـCVT واليدوية لكلٍّ زيتها، والخطأ فيها قد يتلف العلبة.' } },
-                { key: 'timingBelt', label: 'حزام التوزيع', type: 'km', defaultMax: '60000', presets: [60000, 80000, 100000, 120000, 150000] },
-                { key: 'tensioner', label: 'الشداد', type: 'km', defaultMax: '60000', presets: [60000, 80000, 100000, 120000, 150000] }
+                { key: 'fuelFilter', label: 'فلتر الوقود', type: 'km', defaultMax: '30000', presets: [10000, 15000, 20000, 30000, 40000] }
             ],
             general: [
+                { key: 'timingBelt', label: 'حزام التوزيع', type: 'km', defaultMax: '60000', presets: [60000, 80000, 100000, 120000, 150000] },
+                { key: 'tensioner', label: 'الشداد', type: 'km', defaultMax: '60000', presets: [60000, 80000, 100000, 120000, 150000] },
+                { key: 'brakePadsFront', label: 'بلاكات أمامية', type: 'km', defaultMax: '40000', presets: [20000, 30000, 40000, 50000, 60000] },
+                { key: 'brakePadsRear', label: 'بلاكات خلفية', type: 'km', defaultMax: '80000', presets: [40000, 60000, 80000, 100000, 120000] }
+            ],
+            extra: [
+                { key: 'gplControl', label: 'مراقبة GPL', type: 'time', presets: [12, 24, 36] },
+                { key: 'extinguisherControl', label: 'مراقبة الطفاية', type: 'time', presets: [6, 12, 24] },
+                { key: 'gearOil', label: 'زيت علبة السرعة', type: 'km', defaultMax: '40000', presets: [40000, 60000, 80000, 100000, 120000], spec: { label: 'نوع زيت العلبة', presets: ['ATF', '75W-80', '75W-90', '80W-90', 'CVT'], warn: 'أنواع زيوت علب السرعة غير قابلة للتبادل: الأوتوماتيكية والـCVT واليدوية لكلٍّ زيتها، والخطأ فيها قد يتلف العلبة.' } },
+                { key: 'acFilter', label: 'فلتر المكيف', type: 'km', defaultMax: '20000', presets: [10000, 15000, 20000, 25000, 30000] },
                 { key: 'brakeFluid', label: 'سائل الفرامل', type: 'time', presets: [12, 24, 36], spec: { label: 'درجة سائل الفرامل', presets: ['DOT 3', 'DOT 4', 'DOT 4 LV', 'DOT 5.1', 'DOT 5'], warn: 'السائل السيليكوني DOT 5 لا يُخلط بغيره من الدرجات، وتختلف الدرجات في حرارة الغليان. استعمل ما يوصي به مصنّع سيارتك.' } },
                 { key: 'coolant', label: 'سائل التبريد', type: 'time', presets: [12, 24, 48], spec: { label: 'نوع سائل التبريد', presets: ['G11 أخضر', 'G12 أحمر', 'G12+ وردي', 'G12++ / G13 بنفسجي', 'جاهز مخلوط'], warn: 'أنواع سائل التبريد لا تُخلط، فقد تتجبّن وتسدّ مجاري التبريد. وإن كان في الدائرة نوع آخر فيجب تفريغها وغسلها.' } },
                 { key: 'powerSteering', label: 'زيت المقود', type: 'km', defaultMax: '50000', presets: [30000, 50000, 60000, 80000, 100000], spec: { label: 'نوع زيت المقود', presets: ['ATF', 'PSF', 'معدني', 'CHF', 'LHM'], warn: 'أنواع زيوت المقود لا تُخلط، والخطأ فيها قد يتلف الحشوات ومضخة المقود.' } },
-                { key: 'brakePadsFront', label: 'بلاكات أمامية', type: 'km', defaultMax: '40000', presets: [20000, 30000, 40000, 50000, 60000] },
-                { key: 'brakePadsRear', label: 'بلاكات خلفية', type: 'km', defaultMax: '80000', presets: [40000, 60000, 80000, 100000, 120000] },
                 { key: 'discsFront', label: 'أقراص أمامية', type: 'km', defaultMax: '80000', presets: [60000, 80000, 100000, 120000, 150000] },
                 { key: 'discsRear', label: 'أقراص خلفية', type: 'km', defaultMax: '100000', presets: [80000, 100000, 120000, 150000, 200000] },
                 { key: 'sparkPlugs', label: 'شمعات الاحتراق', type: 'km', defaultMax: '40000', presets: [20000, 30000, 40000, 60000, 100000], spec: { label: 'نوع الشمعات', presets: ['نحاس', 'بلاتين', 'إريديوم', 'مزدوجة', 'فضة'], warn: 'نوع الشمعة ومرجعها يحدّدهما مصنّع محركك، والخطأ فيهما قد يضعف الاحتراق أو يتلف المحرك.' } },
@@ -2252,7 +2258,7 @@
             onboardingStep = 'indicators';
             showOnboardingMsg(
                 'تم حفظ العداد ✓',
-                'اختر أي بطاقة (الوثائق والمراقبة، الزيت والفلاتر والحزام، الصيانة العامة)، ثم اضغط على المؤشر الذي تريد متابعته وفعّله بالمفتاح في أعلى صفحته.',
+                'اختر أي بطاقة (الوثائق، الزيت، الصيانة، أو «إضافية» لما يخص سيارتك أنت)، ثم اضغط على المؤشر الذي تريد متابعته وفعّله بالمفتاح في أعلى صفحته.',
                 'حسناً',
                 function() { finishOnboarding(); }
             );
@@ -2487,7 +2493,7 @@
             showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">البطاقات الثلاث</b><br>لكل بطاقة اسمها وضوء يبيّن حالتها: أخضر بخير، برتقالي اقترب موعد شيء فيها، أحمر حان موعده. اضغط على البطاقة لترى مؤشراتها وتحدّثها.<br><br><b style="color:#b8860b;">المفتاح</b><br>عند فتح أي مؤشر تجد في أعلى صفحته مفتاحًا لتفعيله أو تعطيله. المؤشر المعطَّل ضوؤه أبيض ولا يظهر له رقم.<br><br><b style="color:#b8860b;">الوقود والمصاريف</b><br>بطاقة «الوقود» تفتح مباشرة نافذة تسجيل تعبئة وقود، وبطاقة «المصاريف» تفتح صفحة المصاريف والإحصائيات.<br><br><b style="color:#b8860b;">القائمة</b><br>الخطوط الثلاثة في أعلى يمين كل صفحة تفتح قائمة فيها: شرح الصفحة، وشرح التطبيق، والنسخة الاحتياطية، والملاحظات، وإعادة ضبط المصنع.');
         }
         function showGroupPageHelp() {
-            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على أي مؤشر لتحديث موعده القادم أو لتفعيله وتعطيله. في المؤشرات الزمنية (كالتأمين) تظهر نافذة فيها مفتاح التفعيل والتقويم: اختر التاريخ الجديد ثم أكّد. وفي مؤشرات الكيلومتر تظهر نافذة فيها العداد الحالي والعداد عند التغيير القادم، وبجانب كل منهما زر «تعديل». في تعديل العداد القادم اكتب الرقم، أو اضغط على اقتراح جاهز (مثل +10 000) ليُضاف إلى العداد الحالي. الرقم يبيّن ما بقي بالكيلومتر أو بالأيام، والضوء يبيّن الحالة.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>تظهر تحت الجدول دائرة صفراء فيها علامة +. اضغط عليها لتُظهر المؤشرات المعطَّلة، ثم على علامة − لتُخفيها.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الثلاثة في أعلى الصفحة تنقلك مباشرة بين الوثائق والمراقبة، والزيت والفلاتر والحزام، والصيانة العامة. وزر «الرجوع إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
+            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على أي مؤشر لتحديث موعده القادم أو لتفعيله وتعطيله. في المؤشرات الزمنية (كالتأمين) تظهر نافذة فيها مفتاح التفعيل والتقويم: اختر التاريخ الجديد ثم أكّد. وفي مؤشرات الكيلومتر تظهر نافذة فيها العداد الحالي والعداد عند التغيير القادم، وبجانب كل منهما زر «تعديل». في تعديل العداد القادم اكتب الرقم، أو اضغط على اقتراح جاهز (مثل +10 000) ليُضاف إلى العداد الحالي. الرقم يبيّن ما بقي بالكيلومتر أو بالأيام، والضوء يبيّن الحالة.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>كل مؤشرات المجموعة ظاهرة دائمًا. المعطَّل ضوؤه باهت وبلا رقم، واضغط عليه لتفعّله.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الأربعة في أعلى الصفحة تنقلك مباشرة بين الوثائق والزيت والصيانة والإضافية. وزر «العودة إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
         }
         function showDateInfo() {
             showInfo('تاريخ اليوم', 'هذا التاريخ مأخوذ من ساعة هاتفك ولا يمكن تعديله من هنا.<br>إن وجدته غير صحيح، فصحّحه من إعدادات الهاتف (التاريخ والوقت)، ثم عُد إلى التطبيق.');
@@ -2849,7 +2855,7 @@
         function renderCardsPage() {
             groupShowOff = false;
             const names = MODULE_NAMES;
-            const cards = MODULE_ORDER.map(k => {
+            const cards = MAIN_MODULES.map(k => {
                 const st = getModuleStatus(k);
                 return `<div class="home-card" onclick="navigateToModule('${k}')">
                     <span class="home-card-title">${names[k]}</span>
@@ -2857,8 +2863,9 @@
                 </div>`;
             }).join('');
             const bottomRow = `<div class="cards-row">
-                    <div class="home-card half" onclick="fuelQuick()"><span class="home-card-title">الوقود</span></div>
-                    <div class="home-card half" onclick="navigateExpensesPage()"><span class="home-card-title">المصاريف</span></div>
+                    <div class="home-card third" onclick="navigateToModule('extra')"><span class="home-card-title sec">${names.extra}</span><div class="status-light status-${getModuleStatus('extra')}"></div></div>
+                    <div class="home-card third" onclick="fuelQuick()"><span class="home-card-title sec">الوقود</span><div class="status-light status-none"></div></div>
+                    <div class="home-card third" onclick="navigateExpensesPage()"><span class="home-card-title sec">المصاريف</span><div class="status-light status-none"></div></div>
                 </div>`;
             const backRow = `<button class="back-slate" onclick="goHome()">الرجوع إلى صفحة الاستقبال</button>`;
             FORM_EL().innerHTML = `<div class="car-hero"><svg viewBox="0 0 240 90" width="176" height="66" aria-label="سيارة" role="img">
@@ -2881,17 +2888,9 @@
         function toggleGroupOff() { groupShowOff = !groupShowOff; renderGroupPage(currentModule); }
 
         function renderGroupPage(mod) {
-            const gNames = MODULE_NAMES;
-            const odo = records.car.odometer.currentEstimatedOdo;
-            const isOnItem = it => { const o = records[mod][it.key]; return !!o && o.active !== false; };
-            const activeItems = metadata[mod].filter(isOnItem);
-            const offItems = metadata[mod].filter(it => !isOnItem(it));
-            let list = groupShowOff ? activeItems.concat(offItems) : activeItems;
-            if (mod === 'oil') {
-                const tail = ['timingBelt', 'tensioner'];
-                list = list.filter(it => tail.indexOf(it.key) === -1).concat(tail.map(k => list.filter(it => it.key === k)[0]).filter(Boolean));
-            }
-            let rows = list.map(item => {
+            const odo = records[mod] ? records.car.odometer.currentEstimatedOdo : 0;
+            // كل المؤشرات ظاهرة دائمًا، حتى غير المفعَّلة (ضوؤها باهت وبلا رقم)
+            let rows = metadata[mod].map(item => {
                 const obj = records[mod][item.key];
                 const on = !!obj && obj.active !== false;
                 const isT = item.type === 'time';
@@ -2907,16 +2906,10 @@
                     <td class="col-toggle"><div class="status-light status-${st}"></div></td>
                 </tr>`;
             }).join('');
-            if (!rows) rows = `<tr><td colspan="3" style="text-align:center;color:#888;padding:18px;font-size:12px;">لا توجد مؤشرات مفعَّلة</td></tr>`;
-            const midBtn = offItems.length
-                ? `<button class="more-circle" onclick="toggleGroupOff()" aria-label="المؤشرات المعطَّلة">${groupShowOff ? '−' : '+'}</button>`
-                : '';
-            const updBtn = `<div class="grp-update"><button class="grp-update-btn" onclick="openBatchUpdate('${mod}')">تحديث</button><button class="grp-back-btn" onclick="navigateAlertsPage()">الرجوع إلى الصفحة الرئيسية</button></div>`;
-            const shortNames = { docs: 'الوثائق', oil: 'الزيت', general: 'الصيانة' };
-            const pills = MODULE_ORDER.map(k => `<button class="seg-tab ${k === mod ? 'active' : ''}" onclick="navigateToModule('${k}')">${shortNames[k]}</button>`).join('');
+            const updBtn = `<div class="grp-update"><button class="grp-update-btn" onclick="openBatchUpdate('${mod}')">تحديث</button><button class="grp-back-btn" onclick="navigateAlertsPage()">العودة إلى الرئيسية</button></div>`;
+            const pills = MODULE_ORDER.map(k => `<button class="seg-tab ${k === mod ? 'active' : ''}" onclick="navigateToModule('${k}')">${MODULE_NAMES[k]}</button>`).join('');
             FORM_EL().innerHTML = `
                 <div class="grp-pills"><div class="seg-row">${pills}</div></div>
-                <div class="table-col-titles grp-cols"><span></span><span>الباقي</span><span class="grp-plus">${midBtn}</span></div>
                 <div class="grp-frame">
                     <table class="indicators-table"><tbody>${rows}</tbody></table>
                 </div>
@@ -3129,9 +3122,10 @@
       mainTitle=$('bu-mainTitle'), ttl=$('bu-ttl'), okBtn=$('bu-ok'), dotsEl=document.querySelector('#bu-root .dots');
 
   var TITLES = {
-    docs:    { main:'تحديث الوثائق والمراقبة',      s1:'اختر الوثائق المجددة', s2:'تاريخ انتهاء الصلاحية' },
-    oil:     { main:'تحديث الزيت والفلاتر والحزام', s1:'ماذا غيّرت؟',          s2:'مدة الصلاحية' },
-    general: { main:'تحديث الصيانة العامة',         s1:'ماذا غيّرت؟',          s2:'مدة الصلاحية' }
+    docs:    { main:'تحديث الوثائق',                s1:'اختر الوثائق المجددة', s2:'تاريخ انتهاء الصلاحية' },
+    oil:     { main:'تحديث الزيت والفلاتر',         s1:'ماذا غيّرت؟',          s2:'مدة الصلاحية' },
+    general: { main:'تحديث الصيانة',                s1:'ماذا غيّرت؟',          s2:'مدة الصلاحية' },
+    extra:   { main:'تحديث المؤشرات الإضافية',      s1:'ماذا غيّرت؟',          s2:'مدة الصلاحية' }
   };
 
   var mod='oil', items=[];

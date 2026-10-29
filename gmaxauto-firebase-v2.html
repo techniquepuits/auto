@@ -16,7 +16,7 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            padding-bottom: 80px;
+            padding-bottom: 20px;
         }
 
         .container, .main-container {
@@ -41,7 +41,7 @@
         #welcome-page {
             width: 100%;
             max-width: 500px;
-            height: calc(100vh - 65px);
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
@@ -100,7 +100,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            margin-bottom: 25px;
+            margin-bottom: 38px;
             background-color: #4caf50;
             box-shadow: 0 0 16px #4caf50;
         }
@@ -109,7 +109,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 12px;
             width: 100%;
         }
         .odo-why-btn { position: relative; width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.45); font-size: 12px; line-height: 18px; text-align: center; margin-top: 6px; cursor: pointer; user-select: none; }
@@ -282,6 +282,8 @@
             transition: border-color 0.2s;
         }
         .home-card:active { border-color: #b8860b; }
+        .cards-row { display: flex; gap: 14px; width: 100%; }
+        .home-card.half { flex: 1; min-width: 0; justify-content: center; }
         .home-card-title { font-size: 16px; font-weight: bold; color: #fff; }
         .home-card .status-light { margin: 0; flex: none; }
 
@@ -619,6 +621,8 @@
         .exp-big-btn.stats:active { background: #9a7009; }
         .exp-big-btn.list { background: #4b5f78; color: #fff; border: none; }
         .exp-big-btn.list:active { background: #3d4e63; }
+        .exp-big-btn.back { background: none; color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.3); margin-top: 8px; }
+        .exp-big-btn.back:active { background: #1c1c1c; }
         .exp-subhead { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 16px; font-weight: bold; color: #b8860b; }
         .exp-back { background: #1e1e1e; border: 1px solid #2d2d2d; color: #b8860b; width: 38px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
         .st-hint { font-size: 13px; color: rgba(255,255,255,0.55); margin: 0 0 10px; }
@@ -726,9 +730,12 @@
         #login-msg { font-size: 13px; line-height: 1.9; text-align: center; color: rgba(255,255,255,0.7); min-height: 24px; margin: 6px 0 14px; max-width: 320px; }
         #login-msg.err { color: #f44336; }
         .login-note { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; line-height: 1.8; margin-top: 18px; max-width: 320px; }
-        .row-off .col-indicator { color: rgba(255,255,255,0.4); }
+        .row-off .col-indicator { color: #b8860b; }
 
-        .welcome-odometer-text { cursor: default; }
+        .welcome-odometer-text { cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; -webkit-tap-highlight-color: transparent; }
+        .welcome-odometer-text:active { border-color: #b8860b; }
+        .welcome-odometer-text .odo-km { font-size: 12px; font-weight: normal; color: rgba(255,255,255,0.4); }
+        .welcome-odometer-text .odo-pen { display: inline-flex; color: rgba(255,255,255,0.4); }
         .odo-card { padding-top: 32px; padding-bottom: 32px; margin-bottom: 10px; }
         .odo-card-val { color: #fff; font-size: 19px; font-weight: bold; white-space: nowrap; }
         #spec-pop-overlay { display: none; position: fixed; inset: 0; z-index: 37800; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
@@ -750,7 +757,7 @@
         .table-col-titles { background: #2b2410; border: 1px solid rgba(255,213,74,0.35); border-bottom: none; border-radius: 10px 10px 0 0; padding: 10px 1px; margin-top: 4px; color: #ffd54a; font-weight: bold; font-size: 12px; }
         .table-col-titles + .indicators-table { margin-top: 0; border-radius: 0 0 10px 10px; }
         .indicators-table .col-indicator { color: #e0b030; }
-        .indicators-table .row-off .col-indicator { color: rgba(224,176,48,0.4); }
+        .indicators-table .row-off .col-indicator { color: #e0b030; }
         .indicators-table .col-remaining { color: #fff; font-weight: normal; }
         .more-circle { width: 42px; height: 42px; border-radius: 50%; border: none; background: #e0a800; color: #fff; font-size: 28px; font-weight: bold; line-height: 1; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 0 3px; box-shadow: 0 2px 8px rgba(224,168,0,0.3); -webkit-tap-highlight-color: transparent; }
         .more-circle:active { background: #c99700; }
@@ -793,7 +800,7 @@
         .grp-frame .indicators-table td { border-bottom: 1px solid #2a2a2a; }
         .grp-frame .indicators-table tr:last-child td { border-bottom: none; }
         .chev { display: inline-block; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 7px solid #6f6f6f; margin-left: 9px; vertical-align: middle; }
-        .row-off .chev { opacity: 0.5; }
+        .row-off .chev { opacity: 1; }
         .grp-more { display: flex; justify-content: center; margin-top: 16px; }
         .grp-pills { margin-bottom: 24px; padding: 4px; border-radius: 14px; background: #1a1a1a; }
         .grp-pills .seg-row { gap: 2px; }
@@ -948,9 +955,12 @@
 #bu-root #bu-layer{z-index:36200}
 #bu-root #bu-layer2{z-index:36300}
 #bu-root .btn,#bu-root .key,#bu-root .mini,#bu-root .chk,#bu-root .fieldbtn,#bu-root .cal-day,#bu-root .cal-nav button{font-family:inherit}
-.grp-update{display:flex;justify-content:center;margin:14px 0 6px}
-.grp-update-btn{min-width:150px;min-height:46px;padding:0 26px;border-radius:14px;border:0;background:#d4a017;color:#1a1405;font-family:inherit;font-weight:700;font-size:17px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.grp-update-btn:active{transform:scale(.97)}
+.grp-update{display:flex;width:100%;margin:14px 0 6px}
+.grp-update-btn{position:relative;z-index:2;flex:1;min-width:0;min-height:48px;padding:0 10px;border-radius:0 14px 14px 0;border:0;background:#d4a017;color:#1a1405;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.grp-update-btn::after{content:'';position:absolute;left:-12px;top:50%;width:24px;height:24px;margin-top:-12px;border-radius:50%;background:#d4a017}
+.grp-update-btn:active{filter:brightness(.92)}
+.grp-back-btn{flex:1;min-width:0;min-height:48px;padding:0 10px;border-radius:14px 0 0 14px;border:0;background:radial-gradient(circle at right center,transparent 13px,#4b5f78 14px);color:#fff;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.grp-back-btn:active{filter:brightness(.9)}
 
 </style>
 </head>
@@ -988,7 +998,7 @@
             <div class="single-global-light"></div>
 
             <div class="welcome-odometer-section">
-                <div class="welcome-odometer-text" id="welcome-odo-display">120 000</div>
+                <div class="welcome-odometer-text" onclick="editWelcomeOdo()"><span class="odo-pen" data-ico="note" data-s="16"></span><span id="welcome-odo-display">120 000</span><span class="odo-km">km</span></div>
             </div>
 
             <button class="start-app-btn" id="startBtn" onclick="startApp()">Start</button>
@@ -1076,18 +1086,6 @@
     <div id="app-menu-overlay" onclick="closeAppMenu()"><div id="app-menu" onclick="event.stopPropagation()"></div></div>
 
     <div id="story-overlay"><div id="story-card" onclick="storyTap(event)"></div></div>
-
-    <!-- شريط التنقل السفلي -->
-    <div class="bottom-nav-bar" id="bottom-nav-bar">
-        <button class="bottom-nav-item" id="nav-indicators-btn" onclick="navigateAlertsPage()">
-            <span class="bottom-nav-icon" data-ico="calendar" data-s="24"></span>
-            <span class="bottom-nav-label">المواعيد</span>
-        </button>
-        <button class="bottom-nav-item" id="nav-expenses-btn" onclick="navigateExpensesPage()">
-            <span class="bottom-nav-icon" data-ico="wallet" data-s="24"></span>
-            <span class="bottom-nav-label">المصاريف</span>
-        </button>
-    </div>
 
     <!-- نافذة تسجيل مصروف: الخطوة 1 اختيار المجموعة، الخطوة 2 المبلغ -->
     <div id="fuel-overlay">
@@ -2069,7 +2067,6 @@
         }
 
         updateGlobalLight();
-        document.getElementById('bottom-nav-bar').style.display = 'none';
 
         function setNavActive(btnId) {
             document.querySelectorAll('.bottom-nav-item').forEach(item => {
@@ -2089,7 +2086,6 @@
             document.getElementById('notes-page-container').style.display = 'none';
             // الشريط السفلي: يظهر فقط بعد البدء وفي الصفحات الرئيسية الثلاث، ويُضبط الزر النشط مع الصفحة دائماً
             setNavActive(navId);
-            document.getElementById('bottom-nav-bar').style.display = (appStarted && navId) ? 'flex' : 'none';
         }
 
         function navigateToModule(mod) {
@@ -2115,6 +2111,11 @@
 
         function navigateAlertsPage() {
             navigateToModule('alerts');
+        }
+
+        function editWelcomeOdo() {
+            if (isFirstRun || onboardingStep || !currentUser) return;
+            openOdoDialog('welcome');
         }
 
         function startApp() {
@@ -2390,13 +2391,13 @@
             document.getElementById('date-info-overlay').style.display = 'flex';
         }
         function showWelcomeHelp() {
-            showInfo('عن التطبيق', '<b style="color:#b8860b;">فكرة التطبيق</b><br>جي ماكس أوتو يُذكّرك بمواعيد صيانة سيارتك ووثائقها قبل أن تفوتك، وتنبيهاته مبنية على المعلومات التي سجّلتَها فيه.<br><br><b style="color:#b8860b;">الضوء</b><br>يتغيّر لونه بحسب الحالة: أحمر إن كان هناك ما حان موعده، وبرتقالي إن كان هناك ما اقترب، وأخضر إن كانت كل المؤشرات بخير.<br><br><b style="color:#b8860b;">العداد</b><br>رقم يزيد كل يوم بحسب معدل سيرك المعتاد. هذه الخانة للعرض فقط. ولتصحيحه اضغط «Start» ثم بطاقة «العداد التقديري»، واكتب قراءة عدّاد سيارتك الحقيقية من حين لآخر.<br><br><b style="color:#b8860b;">زر Start</b><br>اضغط عليه للدخول إلى صفحة التنبيهات. وللعودة إلى هذه الصفحة اضغط على شعار التطبيق في أعلى أي صفحة.');
+            showInfo('عن التطبيق', '<b style="color:#b8860b;">فكرة التطبيق</b><br>جي ماكس أوتو يُذكّرك بمواعيد صيانة سيارتك ووثائقها قبل أن تفوتك، وتنبيهاته مبنية على المعلومات التي سجّلتَها فيه.<br><br><b style="color:#b8860b;">الضوء</b><br>يتغيّر لونه بحسب الحالة: أحمر إن كان هناك ما حان موعده، وبرتقالي إن كان هناك ما اقترب، وأخضر إن كانت كل المؤشرات بخير.<br><br><b style="color:#b8860b;">العداد</b><br>رقم يزيد كل يوم بحسب معدل سيرك المعتاد. ولتصحيحه اضغط على الخانة (عليها أيقونة القلم) واكتب قراءة عدّاد سيارتك الحقيقية من حين لآخر.<br><br><b style="color:#b8860b;">زر Start</b><br>اضغط عليه للدخول إلى صفحة التنبيهات. وللعودة إلى هذه الصفحة اضغط على شعار التطبيق في أعلى أي صفحة.');
         }
         function showAlertsPageHelp() {
-            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">العداد التقديري</b><br>أول بطاقة في الصفحة تعرض عدّاد سيارتك التقديري. اضغط عليها لتصحيحه بقراءة العداد الحقيقية. ويُحسب معدل سيرك الشهري تلقائيًا من قراءاتك.<br><br><b style="color:#b8860b;">البطاقات الثلاث</b><br>لكل بطاقة اسمها وضوء يبيّن حالتها: أخضر بخير، برتقالي اقترب موعد شيء فيها، أحمر حان موعده. اضغط على البطاقة لترى مؤشراتها وتحدّثها.<br><br><b style="color:#b8860b;">المفتاح</b><br>عند فتح أي مؤشر تجد في أعلى صفحته مفتاحًا لتفعيله أو تعطيله. المؤشر المعطَّل ضوؤه أبيض ولا يظهر له رقم.<br><br><b style="color:#b8860b;">شريط التنقّل</b><br>يرافقك الشريط السفلي في كل الصفحات. يكفي أن تضغط على أحد أزراره لتنتقل مباشرة من قسم إلى آخر.<br><br><b style="color:#b8860b;">القائمة</b><br>الخطوط الثلاثة في أعلى يمين كل صفحة تفتح قائمة فيها: شرح الصفحة، وشرح التطبيق، والنسخة الاحتياطية، والملاحظات، وإعادة ضبط المصنع.');
+            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">البطاقات الثلاث</b><br>لكل بطاقة اسمها وضوء يبيّن حالتها: أخضر بخير، برتقالي اقترب موعد شيء فيها، أحمر حان موعده. اضغط على البطاقة لترى مؤشراتها وتحدّثها.<br><br><b style="color:#b8860b;">المفتاح</b><br>عند فتح أي مؤشر تجد في أعلى صفحته مفتاحًا لتفعيله أو تعطيله. المؤشر المعطَّل ضوؤه أبيض ولا يظهر له رقم.<br><br><b style="color:#b8860b;">الوقود والمصاريف</b><br>بطاقة «الوقود» تفتح مباشرة نافذة تسجيل تعبئة وقود، وبطاقة «المصاريف» تفتح صفحة المصاريف والإحصائيات.<br><br><b style="color:#b8860b;">القائمة</b><br>الخطوط الثلاثة في أعلى يمين كل صفحة تفتح قائمة فيها: شرح الصفحة، وشرح التطبيق، والنسخة الاحتياطية، والملاحظات، وإعادة ضبط المصنع.');
         }
         function showGroupPageHelp() {
-            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على أي مؤشر لتحديث موعده القادم أو لتفعيله وتعطيله. في المؤشرات الزمنية (كالتأمين) تظهر نافذة فيها مفتاح التفعيل والتقويم: اختر التاريخ الجديد ثم أكّد. وفي مؤشرات الكيلومتر تظهر نافذة فيها العداد الحالي والعداد عند التغيير القادم، وبجانب كل منهما زر «تعديل». في تعديل العداد القادم اكتب الرقم، أو اضغط على اقتراح جاهز (مثل +10 000) ليُضاف إلى العداد الحالي. الرقم يبيّن ما بقي بالكيلومتر أو بالأيام، والضوء يبيّن الحالة.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>تظهر تحت الجدول دائرة صفراء فيها علامة +. اضغط عليها لتُظهر المؤشرات المعطَّلة، ثم على علامة − لتُخفيها.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الثلاثة في أعلى الصفحة تنقلك مباشرة بين الوثائق والمراقبة، والزيت والفلاتر والحزام، والصيانة العامة. وزر «المواعيد» في الشريط السفلي يعيدك إلى البطاقات.');
+            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على أي مؤشر لتحديث موعده القادم أو لتفعيله وتعطيله. في المؤشرات الزمنية (كالتأمين) تظهر نافذة فيها مفتاح التفعيل والتقويم: اختر التاريخ الجديد ثم أكّد. وفي مؤشرات الكيلومتر تظهر نافذة فيها العداد الحالي والعداد عند التغيير القادم، وبجانب كل منهما زر «تعديل». في تعديل العداد القادم اكتب الرقم، أو اضغط على اقتراح جاهز (مثل +10 000) ليُضاف إلى العداد الحالي. الرقم يبيّن ما بقي بالكيلومتر أو بالأيام، والضوء يبيّن الحالة.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>تظهر تحت الجدول دائرة صفراء فيها علامة +. اضغط عليها لتُظهر المؤشرات المعطَّلة، ثم على علامة − لتُخفيها.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الثلاثة في أعلى الصفحة تنقلك مباشرة بين الوثائق والمراقبة، والزيت والفلاتر والحزام، والصيانة العامة. وزر «الرجوع إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
         }
         function showDateInfo() {
             showInfo('تاريخ اليوم', 'هذا التاريخ مأخوذ من ساعة هاتفك ولا يمكن تعديله من هنا.<br>إن وجدته غير صحيح، فصحّحه من إعدادات الهاتف (التاريخ والوقت)، ثم عُد إلى التطبيق.');
@@ -2482,6 +2483,7 @@
                 <button class="fuel-add-btn" onclick="fuelOpen()">+ مصروف</button>
                 <button class="exp-big-btn list" onclick="expGo('list')">قائمة المصاريف</button>
                 <button class="exp-big-btn stats" onclick="expGo('stats')">الإحصائيات</button>
+                <button class="exp-big-btn back" onclick="navigateAlertsPage()">الرجوع إلى الصفحة الرئيسية</button>
                 </div>`;
             fuelMsg = '';
         }
@@ -2522,6 +2524,10 @@
             document.getElementById('exp-step1').style.display = 'none';
             document.getElementById('exp-step2').style.display = '';
         }
+        function fuelQuick() {
+            fuelOpen();
+            expPick('fuel');
+        }
         function fuelOpen() {
             expShowStep1();
             document.getElementById('fuel-overlay').style.display = 'flex';
@@ -2551,7 +2557,7 @@
             arr.push(entry);
             if (!fuelStore(arr)) { err.innerText = 'تعذّر الحفظ.'; return; }
             fuelClose();
-            renderExpensesPage();
+            if (currentModule === 'expenses') renderExpensesPage();
         }
         function fuelDelete(id, d, a) {
             if (!confirm('حذف مصروف ' + fuelDateLabel(d) + ' بمبلغ ' + formatNumberWithSpace(a) + ' دج؟')) return;
@@ -2738,11 +2744,11 @@
                     <div class="status-light status-${st}"></div>
                 </div>`;
             }).join('');
-            const odoCard = `<div class="home-card odo-card" id="odo-card" onclick="openOdoDialog('cards')">
-                    <span class="home-card-title">العداد التقديري</span>
-                    <div class="odo-card-val"><span class="num-ltr">${formatNumberWithSpace(records.car.odometer.currentEstimatedOdo)}</span> كم</div>
+            const bottomRow = `<div class="cards-row">
+                    <div class="home-card half" onclick="fuelQuick()"><span class="home-card-title">الوقود</span></div>
+                    <div class="home-card half" onclick="navigateExpensesPage()"><span class="home-card-title">المصاريف</span></div>
                 </div>`;
-            FORM_EL().innerHTML = `<div class="cards-container" style="margin-top:10px;">${odoCard}${cards}</div>`;
+            FORM_EL().innerHTML = `<div class="cards-container" style="margin-top:42px;">${cards}${bottomRow}</div>`;
         }
 
         let groupShowOff = false;
@@ -2775,7 +2781,7 @@
             const midBtn = offItems.length
                 ? `<div class="grp-more"><button class="more-circle" onclick="toggleGroupOff()" aria-label="المؤشرات المعطَّلة">${groupShowOff ? '−' : '+'}</button></div>`
                 : '';
-            const updBtn = `<div class="grp-update"><button class="grp-update-btn" onclick="openBatchUpdate('${mod}')">تحديث</button></div>`;
+            const updBtn = `<div class="grp-update"><button class="grp-update-btn" onclick="openBatchUpdate('${mod}')">تحديث</button><button class="grp-back-btn" onclick="navigateAlertsPage()">الرجوع إلى الرئيسية</button></div>`;
             const pills = MODULE_ORDER.map(k => `<button class="seg-tab ${k === mod ? 'active' : ''}" onclick="navigateToModule('${k}')">${gNames[k]}</button>`).join('');
             FORM_EL().innerHTML = `
                 <div class="grp-pills"><div class="seg-row">${pills}</div></div>

@@ -136,6 +136,7 @@
             color: #000000;
             border: none;
             padding: 15px 55px;
+            min-width: 170px;
             font-size: 20px;
             font-weight: bold;
             border-radius: 14px;
@@ -736,9 +737,8 @@
         .login-note { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; line-height: 1.8; margin-top: 18px; max-width: 320px; }
         .row-off .col-indicator { color: #b8860b; }
 
-        .welcome-odometer-text { width: auto; min-width: 130px; padding: 8px 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; -webkit-tap-highlight-color: transparent; }
+        .welcome-odometer-text { box-sizing: border-box; width: 170px; min-width: 0; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; -webkit-tap-highlight-color: transparent; }
         .welcome-odometer-text:active { border-color: #b8860b; }
-        .welcome-odometer-text .odo-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.3); margin: 0 5px; }
         .welcome-odometer-text .odo-km { font-size: 12px; font-weight: normal; color: rgba(255,255,255,0.4); }
         .welcome-odometer-text .odo-pen { display: inline-flex; color: rgba(255,255,255,0.4); }
         .odo-card { padding-top: 32px; padding-bottom: 32px; margin-bottom: 10px; }
@@ -1011,7 +1011,8 @@
             <div class="single-global-light"></div>
 
             <div class="welcome-odometer-section">
-                <div class="welcome-odometer-text" onclick="editWelcomeOdo()"><span class="odo-pen" data-ico="note" data-s="16"></span><span class="odo-sep"></span><span id="welcome-odo-display">120 000</span><span class="odo-km">km</span></div>
+                <div class="main-subtitle" style="margin: 0 0 8px;">عداد السيارة</div>
+                <div class="welcome-odometer-text" onclick="editWelcomeOdo()"><span class="odo-pen" data-ico="note" data-s="16"></span><span id="welcome-odo-display">120 000</span><span class="odo-km">km</span></div>
             </div>
 
             <button class="start-app-btn" id="startBtn" onclick="startApp()">Start</button>
@@ -1030,7 +1031,6 @@
                             <div class="header-mini-brand" onclick="goHome()">
                                 <div class="mini-brand-row"><span style="color:#ffffff;">G</span><span style="color:#b8860b;">MAX</span><span style="color:#3a86c8;">AUTO</span></div>
                             </div>
-                            <button class="hdr-home" onclick="goHome()" aria-label="الرئيسية"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 001 1h3.5v-5h3v5H17a1 1 0 001-1v-9"/></svg></button>
                         </div>
                     </div>
 
@@ -2787,7 +2787,11 @@
             const isOnItem = it => { const o = records[mod][it.key]; return !!o && o.active !== false; };
             const activeItems = metadata[mod].filter(isOnItem);
             const offItems = metadata[mod].filter(it => !isOnItem(it));
-            const list = groupShowOff ? activeItems.concat(offItems) : activeItems;
+            let list = groupShowOff ? activeItems.concat(offItems) : activeItems;
+            if (mod === 'oil') {
+                const tail = ['timingBelt', 'tensioner'];
+                list = list.filter(it => tail.indexOf(it.key) === -1).concat(tail.map(k => list.filter(it => it.key === k)[0]).filter(Boolean));
+            }
             let rows = list.map(item => {
                 const obj = records[mod][item.key];
                 const on = !!obj && obj.active !== false;
@@ -2809,7 +2813,8 @@
                 ? `<button class="more-circle" onclick="toggleGroupOff()" aria-label="المؤشرات المعطَّلة">${groupShowOff ? '−' : '+'}</button>`
                 : '';
             const updBtn = `<div class="grp-update"><button class="grp-update-btn" onclick="openBatchUpdate('${mod}')">تحديث</button><button class="grp-back-btn" onclick="navigateAlertsPage()">الرجوع إلى الصفحة الرئيسية</button></div>`;
-            const pills = MODULE_ORDER.map(k => `<button class="seg-tab ${k === mod ? 'active' : ''}" onclick="navigateToModule('${k}')">${gNames[k]}</button>`).join('');
+            const shortNames = { docs: 'الوثائق', oil: 'الزيت', general: 'الصيانة' };
+            const pills = MODULE_ORDER.map(k => `<button class="seg-tab ${k === mod ? 'active' : ''}" onclick="navigateToModule('${k}')">${shortNames[k]}</button>`).join('');
             FORM_EL().innerHTML = `
                 <div class="grp-pills"><div class="seg-row">${pills}</div></div>
                 <div class="table-col-titles grp-cols"><span></span><span>الباقي</span><span class="grp-plus">${midBtn}</span></div>

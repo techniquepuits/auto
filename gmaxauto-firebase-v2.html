@@ -1063,6 +1063,14 @@
 /* نوافذ التحديث الجماعي الفرعية (لوحة الأرقام والتقويم والاختيار) */
 #bu-root #bu-layer2 { background: rgba(0,0,0,0.7); padding: 12px; }
 #bu-root #bu-layer2 #bu-subcard { width: 100%; max-width: 380px; height: 75vh; min-height: 420px; max-height: 640px; padding: 14px; background: #1e1e1e; color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; box-shadow: 0 6px 22px rgba(0,0,0,0.8); display: flex; flex-direction: column; overflow: hidden; direction: rtl; }
+
+/* ===== v5: نافذة الكتابة = صفحة كاملة بخلفية كريمية رمادية + عنوان الخطوة فوق الإطار الأسود ===== */
+#welcome-odo-overlay, #time-pop-overlay, #spec-pop-overlay, #fuel-overlay, #bu-root #bu-layer2 { background: #e6e1d6 !important; flex-direction: column; padding: 12px; }
+.nm-ptitle { width: 100%; max-width: 380px; text-align: center; margin: 0 0 12px; direction: rtl; flex: none; }
+.nm-pt-sub { font-size: 12px; color: #7a7260; min-height: 0; margin-bottom: 2px; }
+.nm-pt-sub:empty { display: none; }
+.nm-pt-main { font-size: 19px; font-weight: bold; color: #2a2418; line-height: 1.4; }
+.nm-sheet, #bu-root #bu-layer2 #bu-subcard { flex: none; height: min(75vh, calc(100vh - 140px)) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.35) !important; border-color: #000 !important; }
 </style>
 </head>
 <body>
@@ -1190,6 +1198,7 @@
 
     <!-- نافذة تسجيل مصروف: الخطوة 1 اختيار المجموعة، الخطوة 2 المبلغ -->
     <div id="fuel-overlay">
+        <div class="nm-ptitle" id="fuel-pt"><div class="nm-pt-sub"></div><div class="nm-pt-main"></div></div>
         <div class="nm-sheet">
             <div class="nm-head" id="exp-head"></div>
             <div id="exp-step1" class="nm-body"><div id="exp-cats" class="nm-list"></div></div>
@@ -1215,6 +1224,7 @@
 
     <!-- نافذة تحديث المؤشرات الزمنية: تفتح مباشرة عند الضغط على المؤشر -->
     <div id="time-pop-overlay">
+        <div class="nm-ptitle" id="tp-pt"><div class="nm-pt-sub"></div><div class="nm-pt-main"></div></div>
         <div class="nm-sheet" id="tp-sheet">
             <div class="nm-head"><span class="tp-sw" id="tp-sw" onclick="tpToggle()"></span><span id="tp-title" class="nm-title"></span></div>
             <div id="tp-body" class="nm-body"></div>
@@ -1223,7 +1233,8 @@
         </div>
     </div>
 
-    <div id="spec-pop-overlay"><div id="spec-pop-box" class="nm-sheet"></div></div>
+    <div id="spec-pop-overlay"><div class="nm-ptitle" id="spec-pt"><div class="nm-pt-sub"></div><div class="nm-pt-main"></div></div>
+        <div id="spec-pop-box" class="nm-sheet"></div></div>
 
     <!-- رسائل الإعداد الأولي -->
     <div id="onboarding-overlay" class="wizard-overlay" style="z-index: 38000;">
@@ -1238,6 +1249,7 @@
 
     <!-- نافذة العداد ومعدل السير الشهري (تُستدعى من صفحة الاستقبال ومن تحديث المؤشرات) -->
     <div id="welcome-odo-overlay" class="wizard-overlay" style="z-index: 37000;">
+        <div class="nm-ptitle" id="odo-pt"><div class="nm-pt-sub"></div><div class="nm-pt-main"></div></div>
         <div class="nm-sheet">
             <div class="nm-head" id="odo-dlg-title"></div>
             <div class="nm-body" id="odo-dlg-content"></div>
@@ -1311,6 +1323,7 @@
   </div>
 </div>
 <div class="layer" id="bu-layer2" aria-hidden="true">
+  <div class="nm-ptitle" id="bu-pt"><div class="nm-pt-sub"></div><div class="nm-pt-main"></div></div>
   <div class="card" id="bu-subcard" role="dialog" aria-modal="true"></div>
 </div>
 </div>
@@ -1840,6 +1853,11 @@
                 `<div class="nm-pad-row"><button class="nm-key act" onclick="${del}()">حذف</button>${['6','7','8','9'].map(k).join('')}<button class="nm-key act" onclick="${clr}()">مسح</button></div>`;
         }
 
+        function nmTitle(id, sub, main) {
+            const el = document.getElementById(id); if (!el) return;
+            el.children[0].textContent = sub || '';
+            el.children[1].textContent = main || '';
+        }
         function renderOdoDialog() {
             let d = odoDlg;
             const head = document.getElementById('odo-dlg-title');
@@ -1847,6 +1865,8 @@
             const errEl = document.getElementById('odo-dlg-err');
             const acts = document.getElementById('odo-dlg-actions');
             errEl.innerText = '';
+            nmTitle('odo-pt', '', d.view === 'pad' ? (d.origin === 'popupNext' ? '' : (d.field === 'odo' ? 'تعديل عداد السيارة' : 'تعديل معدل السير الشهري')) : 'تنبيه');
+            if (d.view === 'pad' && d.origin === 'popupNext' && tp) { const mm = getItemMeta(tp.mod, tp.key); nmTitle('odo-pt', mm ? mm.label : '', 'تعديل العداد عند التغيير القادم'); }
 
             if (d.view === 'replace') {
                 let log = records.car.odoLog;
@@ -2558,6 +2578,7 @@
         }
         function expShowStep1() {
             document.getElementById('exp-head').innerHTML = '<span class="nm-title">نوع المصروف</span>';
+            nmTitle('fuel-pt', '', 'إضافة مصروف جديد');
             document.getElementById('exp-cats').innerHTML = EXP_CATS.map(c => `<button class="nm-optbig" onclick="expPick('${c.k}')">${c.label}</button>`).join('');
             document.getElementById('exp-step1').style.display = '';
             document.getElementById('exp-step2').style.display = 'none';
@@ -2568,6 +2589,7 @@
             expCat = k;
             fuelAmountStr = '';
             document.getElementById('exp-catname').innerText = expCatLabel(k);
+            nmTitle('fuel-pt', 'إضافة مصروف جديد', expCatLabel(k));
             document.getElementById('fuel-chips').style.display = k === 'fuel' ? '' : 'none';
             document.getElementById('exp-note').style.display = k === 'fuel' ? 'none' : '';
             document.getElementById('exp-note').value = '';
@@ -2944,6 +2966,7 @@
                 function tpRender() {
             const m = getItemMeta(tp.mod, tp.key);
             document.getElementById('tp-title').innerText = m.label;
+            nmTitle('tp-pt', m.label, tp.warn ? 'تأكيد تغيير المواصفة' : (!tp.enabled ? 'تفعيل المؤشر' : (tp.kind === 'km' ? 'تعديل موعد التغيير' : 'تعديل مدة الصلاحية')));
             document.getElementById('tp-sw').classList.toggle('on', tp.enabled);
             document.getElementById('tp-err').innerText = '';
             const bodyEl = document.getElementById('tp-body');
@@ -3018,6 +3041,7 @@
                 m.spec.presets.map((v, i) => `<button class="nm-optbig ${tp.spec === v ? 'on' : ''}" style="unicode-bidi:plaintext;" onclick="tpSpecChoose(${i})">${escapeHtml(v)}</button>`).join('') +
                 `<button class="nm-optbig ${tp.specUnknown ? 'on' : ''}" onclick="tpSpecUnknown()">غير معروف</button>` +
                 `</div></div><div class="nm-actions"><button class="nm-x" onclick="document.getElementById('spec-pop-overlay').style.display='none'">إلغاء</button></div>`;
+            nmTitle('spec-pt', m.label, 'اختيار ' + m.spec.label);
             document.getElementById('spec-pop-overlay').style.display = 'flex';
         }
                 function tpSpecChoose(i) {
@@ -3117,7 +3141,8 @@
     layer2.classList.remove('show','top'); layer2.setAttribute('aria-hidden','true');
     layer.classList.remove('under'); subcard.innerHTML='';
   }
-  function nmSheet(){
+  function nmSheet(title){
+    (function(){ var t=document.getElementById('bu-pt'); t.children[0].textContent='تحديث المجموعة'; t.children[1].textContent=title||''; })();
     subcard.innerHTML='<div class="nm-head"></div><div class="nm-body"></div><div class="nm-actions"></div>';
     return { head:subcard.children[0], body:subcard.children[1], acts:subcard.children[2] };
   }
@@ -3149,7 +3174,7 @@
   function openKeypad(o){
     var cur = o.init? String(o.init):'';
     var unitTxt = o.unit || 'كم';
-    var s=nmSheet();
+    var s=nmSheet(o.title);
     var chips=document.createElement('div'); chips.className='nm-opts';
     function sync(){
       s.head.innerHTML = cur ? '<span class="nm-val"><span>'+fmt(cur)+'</span><span class="nm-unit">'+unitTxt+'</span></span>' : '<span class="nm-title"></span>';
@@ -3181,11 +3206,11 @@
     sync(); showSub();
   }
 
-  function openCalendar(initial, onApply, allowFuture){
+  function openCalendar(initial, onApply, allowFuture, title){
     var t=todayStr(), tpp=t.split('-').map(Number);
     var initStr = initial || t;
     var p=initStr.split('-').map(Number), y=p[0], m=p[1]-1, picked=initStr;
-    var s=nmSheet(); s.body.classList.add('nm-top');
+    var s=nmSheet(title||'اختيار التاريخ'); s.body.classList.add('nm-top');
     var cal=document.createElement('div'); cal.className='nm-cal'; s.body.appendChild(cal);
     function atMax(){ return !allowFuture && (y>tpp[0] || (y===tpp[0] && m>=tpp[1]-1)); }
     function draw(){
@@ -3220,7 +3245,7 @@
   }
 
   function openSelect(o){
-    var s=nmSheet();
+    var s=nmSheet(o.title);
     s.head.innerHTML='<span class="nm-title"></span>'; s.head.firstChild.textContent=o.title;
     var list=document.createElement('div'); list.className='nm-list';
     o.presets.forEach(function(p){
@@ -3276,7 +3301,7 @@
     stage.appendChild(el('<div class="sec-title">تاريخ التغيير</div>'));
     var dBtn=el('<button type="button" class="fieldbtn"></button>');
     dBtn.textContent=dateReadable(date);
-    dBtn.addEventListener('click',function(){ openCalendar(date,function(v){ date=v; dBtn.textContent=dateReadable(date); }, false); });
+    dBtn.addEventListener('click',function(){ openCalendar(date,function(v){ date=v; dBtn.textContent=dateReadable(date); }, false, 'تاريخ التغيير'); });
     stage.appendChild(dBtn);
 
     stage.appendChild(el('<div class="sec-title">العداد عند التغيير</div>'));
@@ -3304,7 +3329,7 @@
         paint();
         b.addEventListener('click',function(){
           var cur=records.docs[k]&&records.docs[k].expiryDate;
-          openCalendar(dates[k]||(cur&&cur>todayStr()?cur:todayStr()), function(v){ dates[k]=v; paint(); }, true);
+          openCalendar(dates[k]||(cur&&cur>todayStr()?cur:todayStr()), function(v){ dates[k]=v; paint(); }, true, 'تاريخ انتهاء الصلاحية');
         });
         r.appendChild(b); rows.appendChild(r);
       });
@@ -3454,6 +3479,39 @@
 
         hydrateIcons();
         initFirebase();
+
+        // v5: زر الرجوع في الهاتف يعمل كـ«إلغاء» لنافذة الكتابة المفتوحة بدل الخروج من التطبيق
+        (function () {
+            const ids = ['welcome-odo-overlay', 'time-pop-overlay', 'spec-pop-overlay', 'fuel-overlay', 'bu-layer2'];
+            const els = ids.map(i => document.getElementById(i)).filter(Boolean);
+            const open = {}; let pushed = 0, ignore = 0;
+            const isOpen = el => el.id === 'bu-layer2' ? el.classList.contains('show') : el.style.display === 'flex';
+            const z = el => parseInt(getComputedStyle(el).zIndex, 10) || 0;
+            function check(el, pop) {
+                const o = isOpen(el), was = !!open[el.id];
+                if (o === was) return;
+                open[el.id] = o;
+                if (o) { try { history.pushState({ nm: 1 }, ''); pushed++; } catch (e) {} }
+                else if (pushed > 0) {
+                    pushed--;
+                    if (pop.used) { ignore++; history.back(); } else pop.used = true;
+                }
+            }
+            new MutationObserver(() => { const pop = { used: true }; els.forEach(e => check(e, pop)); })
+                .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+            window.addEventListener('popstate', () => {
+                if (ignore > 0) { ignore--; return; }
+                const opened = els.filter(isOpen).sort((a, b) => z(b) - z(a));
+                if (!opened.length) return;
+                const top = opened[0];
+                const xs = top.querySelectorAll('.nm-x');
+                if (xs.length) xs[xs.length - 1].click(); else top.style.display = 'none';
+                const pop = { used: false };
+                els.forEach(e => { if (e === top && isOpen(e)) return; check(e, pop); });
+                if (!pop.used) { /* لم يُغلق شيء */ }
+                if (isOpen(top)) { try { history.pushState({ nm: 1 }, ''); } catch (e) {} } else if (!pop.used) { pushed--; }
+            });
+        })();
 </script>
 </body>
 </html>

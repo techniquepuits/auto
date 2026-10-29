@@ -744,7 +744,6 @@
         .odo-card { padding-top: 32px; padding-bottom: 32px; margin-bottom: 10px; }
         .odo-card-val { color: #fff; font-size: 19px; font-weight: bold; white-space: nowrap; }
         #spec-pop-overlay { display: none; position: fixed; inset: 0; z-index: 37800; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        #spec-pop-box { width: 100%; max-width: 340px; background: #e3e3df; border: 1px solid #b8bec7; border-right: 7px solid #2f6fb5; border-radius: 14px; padding: 14px; box-sizing: border-box; box-shadow: 0 8px 28px rgba(0,0,0,0.7); display: flex; flex-direction: column; gap: 8px; max-height: 85vh; overflow-y: auto; }
         .spec-pop-title { font-size: 14px; font-weight: bold; color: #245a98; margin-bottom: 2px; }
         .spec-pop-opt { background: #f4f4f1; border: 1px solid #b8bec7; color: #1d3d66; border-radius: 8px; padding: 13px 8px; font-size: 15px; font-weight: bold; font-family: inherit; cursor: pointer; text-align: center; }
         .spec-pop-opt.on { background: #2f6fb5; border-color: #2f6fb5; color: #fff; }
@@ -980,6 +979,7 @@
 #bu-root #bu-layer .box{border-color:#1f4f8f}
 #bu-root #bu-layer .chk.on .box{background:#1f4f8f}
 #bu-root #bu-layer .chk.on{color:#1f4f8f}
+#bu-root #bu-layer .dots i.on{background:#1f4f8f}
 #bu-root{font-family:inherit;direction:rtl}
 #bu-root #bu-layer{z-index:36200}
 #bu-root #bu-layer2{z-index:36300}
@@ -990,6 +990,79 @@
 .grp-back-btn{width:100%;height:54px;margin-top:10px;border-radius:12px;border:0;background:#4b5f78;color:#fff;font-family:inherit;font-weight:bold;font-size:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .grp-back-btn:active{background:#3d4e63}
 
+
+/* =====================================================================
+   نموذج نوافذ الكتابة الموحَّد: شريط أزرق = قرار واعٍ، إطار أسود، تأكيد ذهبي، إلغاء رمادي
+   ===================================================================== */
+#welcome-odo-overlay, #time-pop-overlay, #spec-pop-overlay, #fuel-overlay { background: rgba(0,0,0,0.7); align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; }
+.nm-sheet { width: 100%; max-width: 380px; height: 75vh; min-height: 420px; max-height: 640px; box-sizing: border-box; background: #1e1e1e; border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; padding: 14px; box-shadow: 0 6px 22px rgba(0,0,0,0.8); display: flex; flex-direction: column; overflow: hidden; color: #fff; direction: rtl; font-family: inherit; }
+.nm-head { display: flex; align-items: center; justify-content: center; gap: 14px; background: #2f6fb5; color: #fff; margin: -6px -6px 12px -6px; padding: 14px; min-height: 52px; box-sizing: border-box; font-size: 16px; font-weight: bold; border-radius: 10px 10px 0 0; flex-shrink: 0; direction: rtl; }
+.nm-title { font-size: 16px; font-weight: bold; color: #fff; }
+.nm-val { direction: ltr; unicode-bidi: embed; display: inline-flex; align-items: center; gap: 6px; font-size: 20px; font-weight: bold; color: #fff; }
+.nm-unit { font-size: 15px; opacity: 0.85; font-weight: 600; }
+.nm-body { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; padding: 12px 10px; background: #121212; border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; overflow-y: auto; box-sizing: border-box; }
+.nm-body::before, .nm-body::after { content: ''; margin: auto; }
+.nm-body-opts { justify-content: space-between; }
+.nm-top { justify-content: flex-start; gap: 10px; }
+.nm-body-opts::before, .nm-body-opts::after, .nm-top::before, .nm-top::after { display: none; }
+.nm-actions { display: flex; gap: 8px; margin-top: 10px; flex-shrink: 0; }
+.nm-ok { flex: 1; background: #b8860b; color: #000; border: none; border-radius: 10px; height: 44px; font-size: 14px; font-weight: bold; font-family: inherit; cursor: pointer; transition: all 0.2s ease; }
+.nm-ok:active:not(:disabled) { background: #9a7009; }
+.nm-ok:disabled { background: #554411; color: rgba(255,255,255,0.3); cursor: not-allowed; opacity: 0.6; }
+.nm-x { flex: 1; background: #333; color: #ccc; border: none; border-radius: 10px; height: 44px; font-size: 13px; font-weight: bold; font-family: inherit; cursor: pointer; }
+.nm-x:active { background: #444; }
+.nm-err { color: #f44336; font-size: 11px; font-weight: bold; text-align: center; margin-top: 6px; min-height: 16px; flex-shrink: 0; }
+.nm-msg-text { font-size: 14px; line-height: 2; text-align: center; color: rgba(255,255,255,0.88); }
+.nm-hint { font-size: 11px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 6px; }
+
+/* لوحة الأرقام: أزرار مربعة، صفّان */
+.nm-pad { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 320px; }
+.nm-pad-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; }
+.nm-key { aspect-ratio: 1; box-sizing: border-box; background-color: #2a2a2a; border: 1px solid #444; border-radius: 8px; font-size: 16px; font-weight: bold; font-family: inherit; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; padding: 0; }
+.nm-key:active { background-color: #444; }
+.nm-key.act { background-color: #3a2211; color: #ffda75; border-color: #663311; font-size: 11px; }
+
+/* أزرار الخيارات والاقتراحات */
+.nm-opts { display: grid; gap: 6px; width: 100%; max-width: 320px; }
+.nm-opt { box-sizing: border-box; height: 38px; background-color: #252525; border: 1px solid #444; border-radius: 8px; font-size: 11.5px; font-weight: bold; font-family: inherit; color: #ffda75; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; direction: ltr; padding: 0 2px; }
+.nm-opt:active { background-color: #444; }
+.nm-opt.on { background: #b8860b; color: #000; border-color: #b8860b; }
+.nm-list { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.nm-optbig { box-sizing: border-box; width: 100%; min-height: 48px; background: #252525; border: 1px solid #444; border-radius: 10px; font-size: 15px; font-weight: bold; font-family: inherit; color: #ffda75; cursor: pointer; padding: 0 10px; }
+.nm-optbig:active { background: #444; }
+.nm-optbig.on { background: #b8860b; color: #000; border-color: #b8860b; }
+
+/* صفوف المعلومات مع زر «تعديل» */
+.nm-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 12px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
+.nm-row:last-child { border-bottom: none; }
+.nm-row-label { font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.8; }
+.nm-row-label b { color: #ffda75; }
+.nm-edit { background: #252525; border: 1px solid #444; color: #ffda75; border-radius: 8px; padding: 8px 16px; font-weight: bold; font-size: 12px; font-family: inherit; cursor: pointer; flex-shrink: 0; }
+.nm-edit:active { background: #444; }
+.nm-catline { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 320px; font-weight: bold; color: #ffda75; font-size: 14px; }
+.nm-input { box-sizing: border-box; width: 100%; max-width: 320px; padding: 10px; border: 1px solid #444; border-radius: 8px; background: #252525; color: #fff; font-family: inherit; font-size: 13px; color-scheme: dark; }
+.nm-date-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; max-width: 320px; font-size: 13px; color: rgba(255,255,255,0.7); }
+
+/* التقويم */
+.nm-cal { width: 100%; display: flex; flex-direction: column; gap: 4px; }
+.nm-dateline { font-size: 13px; color: rgba(255,255,255,0.7); text-align: center; }
+.nm-dateline b { color: #fff; }
+.nm-nav { display: flex; justify-content: space-between; align-items: center; background-color: #181818; padding: 4px 8px; border-radius: 6px; }
+.nm-nav-btn { background: none; border: 1px solid #444; color: rgba(255,255,255,0.6); font-weight: bold; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-family: inherit; }
+.nm-nav-btn:disabled { opacity: 0.3; cursor: default; }
+.nm-nav-label { font-size: 13px; font-weight: bold; color: #b8860b; direction: rtl; }
+.nm-wd { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin: 2px 0; }
+.nm-wd span { font-size: 10px; color: rgba(255,255,255,0.5); }
+.nm-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.nm-day { height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 4px; background-color: #252525; color: #fff; cursor: pointer; user-select: none; border: 0; font-family: inherit; padding: 0; }
+.nm-day.emp { background: transparent; cursor: default; }
+.nm-day.sel { background-color: #b8860b; color: #000; font-weight: bold; }
+.nm-day.dis { background: transparent; color: #555; cursor: default; }
+.nm-day.today { outline: 1.5px solid rgba(184,134,11,0.7); }
+
+/* نوافذ التحديث الجماعي الفرعية (لوحة الأرقام والتقويم والاختيار) */
+#bu-root #bu-layer2 { background: rgba(0,0,0,0.7); padding: 12px; }
+#bu-root #bu-layer2 #bu-subcard { width: 100%; max-width: 380px; height: 75vh; min-height: 420px; max-height: 640px; padding: 14px; background: #1e1e1e; color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; box-shadow: 0 6px 22px rgba(0,0,0,0.8); display: flex; flex-direction: column; overflow: hidden; direction: rtl; }
 </style>
 </head>
 <body>
@@ -1117,36 +1190,24 @@
 
     <!-- نافذة تسجيل مصروف: الخطوة 1 اختيار المجموعة، الخطوة 2 المبلغ -->
     <div id="fuel-overlay">
-        <div class="fuel-sheet">
-            <div id="exp-step1">
-                <div class="fuel-title">نوع المصروف</div>
-                <div id="exp-cats"></div>
-                <div class="fuel-actions"><button class="fuel-x" onclick="fuelClose()">إلغاء</button></div>
+        <div class="nm-sheet">
+            <div class="nm-head" id="exp-head"></div>
+            <div id="exp-step1" class="nm-body"><div id="exp-cats" class="nm-list"></div></div>
+            <div id="exp-step2" class="nm-body nm-top" style="display:none;">
+                <div class="nm-catline"><span id="exp-catname"></span><button class="nm-edit" onclick="expShowStep1()">تغيير</button></div>
+                <div class="nm-opts" id="fuel-chips" style="grid-template-columns:repeat(5,1fr);">
+                    <button class="nm-opt" onclick="fuelSetAmount(1000)">1000</button>
+                    <button class="nm-opt" onclick="fuelSetAmount(1500)">1500</button>
+                    <button class="nm-opt" onclick="fuelSetAmount(2000)">2000</button>
+                    <button class="nm-opt" onclick="fuelSetAmount(2500)">2500</button>
+                    <button class="nm-opt" onclick="fuelSetAmount(3000)">3000</button>
+                </div>
+                <div class="nm-pad" id="fuel-pad"></div>
+                <input type="text" id="exp-note" class="nm-input" maxlength="40" placeholder="ملاحظة (اختيارية): مثل بطارية أو غرامة سرعة">
+                <div class="nm-date-row"><span>التاريخ</span><input type="date" id="fuel-date" class="nm-input" style="width:auto;"></div>
             </div>
-            <div id="exp-step2" style="display:none;">
-                <div class="exp-title-row"><div class="fuel-title" id="exp-title" style="margin:0;"></div><button class="exp-change" onclick="expShowStep1()">تغيير</button></div>
-                <div id="fuel-amount" class="fuel-amount-box empty">اكتب المبلغ</div>
-                <div class="fuel-chips" id="fuel-chips">
-                    <button class="fuel-chip" onclick="fuelSetAmount(1000)">1000</button>
-                    <button class="fuel-chip" onclick="fuelSetAmount(1500)">1500</button>
-                    <button class="fuel-chip" onclick="fuelSetAmount(2000)">2000</button>
-                    <button class="fuel-chip" onclick="fuelSetAmount(2500)">2500</button>
-                    <button class="fuel-chip" onclick="fuelSetAmount(3000)">3000</button>
-                </div>
-                <div class="fuel-pad" style="margin-top:8px;">
-                    <button class="fuel-key" onclick="fuelKey('1')">1</button><button class="fuel-key" onclick="fuelKey('2')">2</button><button class="fuel-key" onclick="fuelKey('3')">3</button>
-                    <button class="fuel-key" onclick="fuelKey('4')">4</button><button class="fuel-key" onclick="fuelKey('5')">5</button><button class="fuel-key" onclick="fuelKey('6')">6</button>
-                    <button class="fuel-key" onclick="fuelKey('7')">7</button><button class="fuel-key" onclick="fuelKey('8')">8</button><button class="fuel-key" onclick="fuelKey('9')">9</button>
-                    <button class="fuel-key" onclick="fuelKey('00')">00</button><button class="fuel-key" onclick="fuelKey('0')">0</button><button class="fuel-key del" onclick="fuelKey('del')">⌫</button>
-                </div>
-                <input type="text" id="exp-note" class="exp-note" maxlength="40" placeholder="ملاحظة (اختيارية): مثل بطارية أو غرامة سرعة">
-                <div class="fuel-date-row"><span>التاريخ</span><input type="date" id="fuel-date"></div>
-                <div id="fuel-err" class="fuel-err"></div>
-                <div class="fuel-actions">
-                    <button class="fuel-x" onclick="fuelClose()">إلغاء</button>
-                    <button class="fuel-ok" onclick="fuelSave()">حفظ</button>
-                </div>
-            </div>
+            <div id="fuel-err" class="nm-err"></div>
+            <div class="nm-actions" id="exp-actions"></div>
         </div>
     </div>
 
@@ -1154,15 +1215,15 @@
 
     <!-- نافذة تحديث المؤشرات الزمنية: تفتح مباشرة عند الضغط على المؤشر -->
     <div id="time-pop-overlay">
-        <div class="up-sheet" id="tp-sheet">
-            <div class="tp-head"><span class="tp-sw" id="tp-sw" onclick="tpToggle()"></span><span id="tp-title"></span></div>
-            <div id="tp-body"></div>
-            <div id="tp-err" class="error-inline-msg"></div>
-            <div class="up-sheet-actions" id="tp-actions"></div>
+        <div class="nm-sheet" id="tp-sheet">
+            <div class="nm-head"><span class="tp-sw" id="tp-sw" onclick="tpToggle()"></span><span id="tp-title" class="nm-title"></span></div>
+            <div id="tp-body" class="nm-body"></div>
+            <div id="tp-err" class="nm-err"></div>
+            <div class="nm-actions" id="tp-actions"></div>
         </div>
     </div>
 
-    <div id="spec-pop-overlay"><div id="spec-pop-box"></div></div>
+    <div id="spec-pop-overlay"><div id="spec-pop-box" class="nm-sheet"></div></div>
 
     <!-- رسائل الإعداد الأولي -->
     <div id="onboarding-overlay" class="wizard-overlay" style="z-index: 38000;">
@@ -1177,10 +1238,11 @@
 
     <!-- نافذة العداد ومعدل السير الشهري (تُستدعى من صفحة الاستقبال ومن تحديث المؤشرات) -->
     <div id="welcome-odo-overlay" class="wizard-overlay" style="z-index: 37000;">
-        <div class="wizard-container" style="height: auto !important; max-height: 95vh !important;">
-            <div class="wizard-header-title" id="odo-dlg-title"></div>
-            <div id="odo-dlg-content"></div>
-            <div class="numpad-actions-row" id="odo-dlg-actions"></div>
+        <div class="nm-sheet">
+            <div class="nm-head" id="odo-dlg-title"></div>
+            <div class="nm-body" id="odo-dlg-content"></div>
+            <div class="nm-err" id="odo-dlg-err"></div>
+            <div class="nm-actions" id="odo-dlg-actions"></div>
         </div>
     </div>
 
@@ -1750,24 +1812,7 @@
                 msg: ''
             };
             renderOdoDialog();
-            const ov = document.getElementById('welcome-odo-overlay');
-            const box = ov.querySelector('.wizard-container');
-            ov.style.display = 'flex';
-            // من صفحة البطاقات: تظهر النافذة مباشرة تحت بطاقة العداد، وفي غيرها تبقى في الوسط
-            const card = origin === 'cards' ? document.getElementById('odo-card') : null;
-            if (card) {
-                window.scrollTo(0, 0);
-                const bottom = card.getBoundingClientRect().bottom;
-                ov.style.alignItems = 'flex-start';
-                box.style.marginTop = Math.max(0, bottom + 8 - 15) + 'px';
-                box.style.setProperty('max-height', 'calc(100vh - ' + Math.round(bottom + 22) + 'px)', 'important');
-                box.style.overflowY = 'auto';
-            } else {
-                ov.style.alignItems = '';
-                box.style.marginTop = '';
-                box.style.setProperty('max-height', '95vh', 'important');
-                box.style.overflowY = '';
-            }
+            document.getElementById('welcome-odo-overlay').style.display = 'flex';
         }
 
         function odoDlgCancel() {
@@ -1788,89 +1833,64 @@
                 `<button class="numpad-btn numpad-btn-del" onclick="${del}()">⌫</button>`;
         }
 
+        // لوحة الأرقام الموحَّدة (نموذج الكتابة الجديد): 0-5 ثم حذف 6-9 مسح
+        function nmPadHtml(dig, del, clr) {
+            const k = n => `<button class="nm-key" onclick="${dig}('${n}')">${n}</button>`;
+            return `<div class="nm-pad-row">${['0','1','2','3','4','5'].map(k).join('')}</div>` +
+                `<div class="nm-pad-row"><button class="nm-key act" onclick="${del}()">حذف</button>${['6','7','8','9'].map(k).join('')}<button class="nm-key act" onclick="${clr}()">مسح</button></div>`;
+        }
+
         function renderOdoDialog() {
             let d = odoDlg;
-            let titleEl = document.getElementById('odo-dlg-title');
-            let contentEl = document.getElementById('odo-dlg-content');
-            let actionsEl = document.getElementById('odo-dlg-actions');
-            let warn = `<div style="font-size: 11px; color: #ff9800; text-align: center; margin-top: 8px; min-height: 16px; font-weight: bold; line-height: 1.7;">${d.msg || ''}</div>`;
+            const head = document.getElementById('odo-dlg-title');
+            const body = document.getElementById('odo-dlg-content');
+            const errEl = document.getElementById('odo-dlg-err');
+            const acts = document.getElementById('odo-dlg-actions');
+            errEl.innerText = '';
 
             if (d.view === 'replace') {
                 let log = records.car.odoLog;
                 let last = log[log.length - 1];
-                titleEl.innerText = 'تنبيه';
-                contentEl.innerHTML = `
-                    <div style="font-size: 13px; line-height: 1.9; text-align: center; margin: 14px 0; color: rgba(255,255,255,0.88);">
+                head.innerHTML = '<span class="nm-title">تنبيه</span>';
+                body.className = 'nm-body';
+                body.innerHTML = `<div class="nm-msg-text">
                         هذا العدد (<span class="num-ltr">${formatNumberWithSpace(d.pendingValue)}</span> كم) أقل من آخر عدد مسجَّل
                         (<span class="num-ltr">${formatNumberWithSpace(last.odo)}</span> كم بتاريخ ${convertDateToReadableArabic(last.date)}).<br>
                         هل تريد استبدال العدد السابق بهذا العدد وبتاريخ اليوم؟
                     </div>`;
-                actionsEl.innerHTML = `
-                    <button class="numpad-action-btn numpad-cancel-btn" onclick="odoDlg.view='pad'; odoDlg.pendingValue=null; renderOdoDialog();">لا</button>
-                    <button class="numpad-action-btn numpad-confirm-btn" onclick="odoDlgFinish('replace')">نعم، استبدل</button>`;
+                acts.innerHTML = `<button class="nm-ok" onclick="odoDlgFinish('replace')">نعم، استبدل</button>
+                    <button class="nm-x" onclick="odoDlg.view='pad'; odoDlg.pendingValue=null; renderOdoDialog();">لا</button>`;
                 return;
             }
 
             if (d.view === 'jump') {
-                titleEl.innerText = 'تأكّد من الرقم';
-                contentEl.innerHTML = `
-                    <div style="font-size: 13px; line-height: 1.9; text-align: center; margin: 14px 0; color: rgba(255,255,255,0.88);">
+                head.innerHTML = '<span class="nm-title">تأكّد من الرقم</span>';
+                body.className = 'nm-body';
+                body.innerHTML = `<div class="nm-msg-text">
                         هذا العدد (<span class="num-ltr">${formatNumberWithSpace(d.pendingValue)}</span> كم) أكبر من آخر عدد مسجَّل بـ
                         <span class="num-ltr">${formatNumberWithSpace(d.jumpKm)}</span> كم خلال <span class="num-ltr">${d.jumpDays}</span> يومًا، وهذا فارق كبير.<br>
                         هل أنت متأكد من صحته؟
                     </div>`;
-                actionsEl.innerHTML = `
-                    <button class="numpad-action-btn numpad-cancel-btn" onclick="odoDlg.view='pad'; odoDlg.pendingValue=null; renderOdoDialog();">راجع الرقم</button>
-                    <button class="numpad-action-btn numpad-confirm-btn" onclick="odoDlg.jumpOk=true; odoDlg.view='pad'; odoDlgSave();">نعم، صحيح</button>`;
+                acts.innerHTML = `<button class="nm-ok" onclick="odoDlg.jumpOk=true; odoDlg.view='pad'; odoDlgSave();">نعم، صحيح</button>
+                    <button class="nm-x" onclick="odoDlg.view='pad'; odoDlg.pendingValue=null; renderOdoDialog();">راجع الرقم</button>`;
                 return;
             }
 
-            if (d.view === 'pad') {
-                let isOdo = d.field === 'odo';
-                titleEl.innerText = d.origin === 'popupNext' ? 'العداد عند التغيير القادم' : (isOdo ? 'اكتب العداد الحالي للسيارة' : 'تعديل معدل السير الشهري');
-                contentEl.innerHTML = `
-                    <div class="wizard-display-box" style="margin-top: 8px;">
-                        <span class="wizard-number-part">${formatNumberWithSpace(d[d.field]) || ''}</span>
-                        <span class="wizard-unit-part">${isOdo ? 'كم' : 'كم / شهر'}</span>
-                    </div>
-                    <div class="numpad-grid" style="margin-top: 10px;">${padKeysHtml('odoDlgDigit', 'odoDlgDel', 'odoDlgClear')}</div>
-                    ${d.origin === 'popupNext' ? nextSuggestHtml() : ''}
-                    ${warn}`;
-                actionsEl.innerHTML = `
-                    <button class="numpad-action-btn numpad-cancel-btn" onclick="odoDlgCancel()">إلغاء</button>
-                    <button class="numpad-action-btn numpad-confirm-btn" onclick="odoDlgPadConfirm()">تأكيد</button>`;
-                return;
-            }
-
-            let o = records.car.odometer;
-            let rateNote;
-            if (d.personal !== null) {
-                rateNote = `معدلك الشخصي المحسوب من قراءاتك السابقة هو <b class="num-ltr">${formatNumberWithSpace(d.personal)}</b> كم/شهر. يمكنك إبقاؤه أو كتابة رقم آخر.`;
-            } else if (o.rateUserSet && o.averageMileage !== 2000) {
-                rateNote = 'هذا المعدل الذي اخترتَه. سيُحسب معدلك الشخصي تلقائياً بعد توفّر قراءات كافية.';
-            } else {
-                rateNote = '2 000 كم/شهر متوسط مناسب للبداية، عدّله متى عرفتَ معدلك الحقيقي.';
-            }
-            titleEl.innerText = 'العداد ومعدل السير';
-            contentEl.innerHTML = `
-                <div class="field-row-inline" style="margin-top:8px;">
-                    <span class="field-label-text">تاريخ اليوم:</span>
-                    <div class="date-display-box" onclick="showDateInfo()">${convertDateToReadableArabic(getTodayDateString())}</div>
-                </div>
-                <div class="field-row-inline">
-                    <span class="field-label-text">العداد الحالي:</span>
-                    <div class="date-display-box editable ${d.touchOdo ? 'touched' : ''}" onclick="odoDlg.touchOdo=true; odoDlgOpenPad('odo')"><span class="num-ltr">${formatNumberWithSpace(d.odo) || '—'}</span> كم</div>
-                </div>
-                <div class="field-row-inline">
-                    <span class="field-label-text">معدل السير الشهري:</span>
-                    <div class="date-display-box editable ${d.touchRate ? 'touched' : ''}" onclick="odoDlg.touchRate=true; odoDlgOpenPad('rate')"><span class="num-ltr">${formatNumberWithSpace(d.rate) || '—'}</span> كم</div>
-                </div>
-                <div class="tap-hint">اضغط للتعديل</div>
-                <div style="font-size: 11px; color: rgba(255,255,255,0.55); text-align: center; margin-top: 8px; line-height: 1.7;">${rateNote}</div>
-                ${warn}`;
-            actionsEl.innerHTML = `
-                <button class="numpad-action-btn numpad-cancel-btn" onclick="odoDlgCancel()">إلغاء</button>
-                <button class="numpad-action-btn numpad-confirm-btn" onclick="odoDlgSave()">تأكيد</button>`;
+            // لوحة الأرقام
+            const isOdo = d.field === 'odo';
+            const isNext = d.origin === 'popupNext';
+            const val = d[d.field];
+            const title = isNext ? 'اكتب العداد عند التغيير القادم' : (isOdo ? 'اكتب العداد الحالي للسيارة' : 'اكتب معدل السير الشهري');
+            head.innerHTML = val
+                ? `<span class="nm-val"><span>${formatNumberWithSpace(val)}</span><span class="nm-unit">${isOdo ? 'كم' : 'كم / شهر'}</span></span>`
+                : `<span class="nm-title">${title}</span>`;
+            body.className = isNext ? 'nm-body nm-body-opts' : 'nm-body';
+            body.innerHTML = (isNext ? nextSuggestHtml() : '') +
+                `<div class="nm-pad">${nmPadHtml('odoDlgDigit', 'odoDlgDel', 'odoDlgClear')}</div>` +
+                (isNext ? '<div style="height:20px;"></div>' : '');
+            errEl.innerText = d.msg || '';
+            acts.innerHTML = `<button class="nm-ok" onclick="odoDlgPadConfirm()" ${val ? '' : 'disabled'}>تأكيد</button>
+                <button class="nm-x" onclick="odoDlgCancel()">إلغاء</button>`;
         }
 
         function odoDlgOpenPad(field) {
@@ -2530,29 +2550,36 @@
         }
 
         function fuelRefreshAmount() {
-            let el = document.getElementById('fuel-amount');
-            if (!fuelAmountStr) { el.className = 'fuel-amount-box empty'; el.innerText = 'اكتب المبلغ'; }
-            else { el.className = 'fuel-amount-box'; el.innerText = formatNumberWithSpace(fuelAmountStr); }
+            const head = document.getElementById('exp-head');
+            if (!fuelAmountStr) head.innerHTML = `<span class="nm-title">${expCatLabel(expCat)}: اكتب المبلغ</span>`;
+            else head.innerHTML = `<span class="nm-val"><span>${formatNumberWithSpace(fuelAmountStr)}</span><span class="nm-unit">دج</span></span>`;
+            const ok = document.getElementById('fuel-ok-btn');
+            if (ok) ok.disabled = !fuelAmountStr;
         }
         function expShowStep1() {
-            document.getElementById('exp-cats').innerHTML = EXP_CATS.map(c => `<button class="exp-cat-btn" onclick="expPick('${c.k}')">${c.label}</button>`).join('');
+            document.getElementById('exp-head').innerHTML = '<span class="nm-title">نوع المصروف</span>';
+            document.getElementById('exp-cats').innerHTML = EXP_CATS.map(c => `<button class="nm-optbig" onclick="expPick('${c.k}')">${c.label}</button>`).join('');
             document.getElementById('exp-step1').style.display = '';
             document.getElementById('exp-step2').style.display = 'none';
+            document.getElementById('fuel-err').innerText = '';
+            document.getElementById('exp-actions').innerHTML = '<button class="nm-x" onclick="fuelClose()">إلغاء</button>';
         }
         function expPick(k) {
             expCat = k;
             fuelAmountStr = '';
-            document.getElementById('exp-title').innerText = expCatLabel(k) + ': المبلغ المدفوع (دج)';
+            document.getElementById('exp-catname').innerText = expCatLabel(k);
             document.getElementById('fuel-chips').style.display = k === 'fuel' ? '' : 'none';
             document.getElementById('exp-note').style.display = k === 'fuel' ? 'none' : '';
             document.getElementById('exp-note').value = '';
             document.getElementById('fuel-date').value = getTodayDateString();
             document.getElementById('fuel-err').innerText = '';
-            fuelRefreshAmount();
+            document.getElementById('fuel-pad').innerHTML = nmPadHtml('fuelKey', 'fuelDelKey', 'fuelClearKey');
+            document.getElementById('exp-actions').innerHTML = '<button class="nm-ok" id="fuel-ok-btn" onclick="fuelSave()" disabled>حفظ</button><button class="nm-x" onclick="fuelClose()">إلغاء</button>';
             document.getElementById('exp-step1').style.display = 'none';
             document.getElementById('exp-step2').style.display = '';
+            fuelRefreshAmount();
         }
-        function fuelQuick() {
+                function fuelQuick() {
             fuelOpen();
             expPick('fuel');
         }
@@ -2565,6 +2592,7 @@
         function fuelKey(k) {
             document.getElementById('fuel-err').innerText = '';
             if (k === 'del') fuelAmountStr = fuelAmountStr.slice(0, -1);
+            else if (k === 'clear') fuelAmountStr = '';
             else {
                 if (fuelAmountStr === '' && (k === '0' || k === '00')) return;
                 if ((fuelAmountStr + k).length > 7) return;
@@ -2572,7 +2600,9 @@
             }
             fuelRefreshAmount();
         }
-        function fuelSave() {
+        function fuelDelKey() { fuelKey('del'); }
+        function fuelClearKey() { fuelKey('clear'); }
+                function fuelSave() {
             let err = document.getElementById('fuel-err');
             let amount = parseInt(fuelAmountStr, 10);
             let d = document.getElementById('fuel-date').value;
@@ -2864,14 +2894,7 @@
             tp = { mod: mod, key: key, kind: isTimeItem(mod, key) ? 'time' : 'km', next: '', mode: null, presetIdx: null, keypad: false, wasActive: on, enabled: on, date: date,
                    calYear: parseInt(base.slice(0, 4)), calMonth: parseInt(base.slice(5, 7)) - 1,
                    spec: obj.spec || '', specPrev: obj.spec || '', specUnknown: false, warn: false, warnOk: false };
-            const ov = document.getElementById('time-pop-overlay');
-            ov.style.display = 'block';
-            window.scrollTo(0, 0);
-            const head = document.querySelector('#main-app-container .page-header');
-            const top = (head ? head.getBoundingClientRect().bottom : 60) + 10;
-            const sh = document.getElementById('tp-sheet');
-            sh.style.top = top + 'px';
-            sh.style.maxHeight = Math.max(320, window.innerHeight - top - 14) + 'px';
+            document.getElementById('time-pop-overlay').style.display = 'flex';
             tpRender();
         }
         function tpClose() {
@@ -2905,40 +2928,45 @@
         function tpCalendarHtml() {
             const first = new Date(tp.calYear, tp.calMonth, 1).getDay();
             const total = tpDaysIn(tp.calYear, tp.calMonth);
-            let cells = '<div></div>'.repeat(first);
+            let cells = '<div class="nm-day emp"></div>'.repeat(first);
             for (let d = 1; d <= total; d++) {
                 const full = `${tp.calYear}-${tpPad(tp.calMonth + 1)}-${tpPad(d)}`;
-                cells += `<div class="cal-day-cell ${tp.date === full ? 'selected' : ''}" onclick="tpPickDay(${d})">${d}</div>`;
+                cells += `<div class="nm-day ${tp.date === full ? 'sel' : ''}" onclick="tpPickDay(${d})">${d}</div>`;
             }
-            return `<div class="wizard-calendar-box">
-                <div class="cal-nav-row" style="padding: 2px 6px;"><button class="cal-nav-btn" onclick="tpNavYear(-1)">&#10095;</button><span class="cal-nav-label">${tp.calYear}</span><button class="cal-nav-btn" onclick="tpNavYear(1)">&#10094;</button></div>
-                <div class="cal-nav-row" style="padding: 2px 6px;"><button class="cal-nav-btn" onclick="tpNavMonth(-1)">&#10095;</button><span class="cal-nav-label">${monthsAlgeria[tp.calMonth]}</span><button class="cal-nav-btn" onclick="tpNavMonth(1)">&#10094;</button></div>
-                <div class="cal-weekdays" style="margin-top: 2px;">${arabicFullWeekdays.map(d => `<div><span class="cal-weekday-badge">${d}</span></div>`).join('')}</div>
-                <div class="cal-days-grid">${cells}</div>
+            cells += '<div class="nm-day emp"></div>'.repeat(Math.max(0, 42 - first - total));
+            return `<div class="nm-cal">
+                <div class="nm-nav"><button class="nm-nav-btn" onclick="tpNavYear(-1)">&#10095;</button><span class="nm-nav-label">${tp.calYear}</span><button class="nm-nav-btn" onclick="tpNavYear(1)">&#10094;</button></div>
+                <div class="nm-nav"><button class="nm-nav-btn" onclick="tpNavMonth(-1)">&#10095;</button><span class="nm-nav-label">${monthsAlgeria[tp.calMonth]}</span><button class="nm-nav-btn" onclick="tpNavMonth(1)">&#10094;</button></div>
+                <div class="nm-wd">${arabicFullWeekdays.map(d => `<span>${d}</span>`).join('')}</div>
+                <div class="nm-days">${cells}</div>
             </div>`;
         }
-        function tpRender() {
+                function tpRender() {
             const m = getItemMeta(tp.mod, tp.key);
             document.getElementById('tp-title').innerText = m.label;
             document.getElementById('tp-sw').classList.toggle('on', tp.enabled);
             document.getElementById('tp-err').innerText = '';
-            let body = '', actions = '';
+            const bodyEl = document.getElementById('tp-body');
+            let body = '', actions = '', cls = 'nm-body';
             if (tp.warn) {
-                body = `<div class="up-warn-text">غيّرتَ ${m.spec.label} من «${escapeHtml(tp.specPrev)}» إلى «${escapeHtml(tp.spec.trim())}».<br>${m.spec.warn}<br>تأكّد من دليل سيارتك أو من الميكانيكي قبل المتابعة.</div>`;
-                actions = `<button class="up-sheet-x" onclick="tpWarnBack()">رجوع</button><button class="up-sheet-ok" onclick="tpWarnYes()">نعم، أنا متأكد</button>`;
+                body = `<div class="nm-msg-text">غيّرتَ ${m.spec.label} من «${escapeHtml(tp.specPrev)}» إلى «${escapeHtml(tp.spec.trim())}».<br>${m.spec.warn}<br>تأكّد من دليل سيارتك أو من الميكانيكي قبل المتابعة.</div>`;
+                actions = `<button class="nm-ok" onclick="tpWarnYes()">نعم، أنا متأكد</button><button class="nm-x" onclick="tpWarnBack()">رجوع</button>`;
             } else {
+                let okDis = false;
                 if (!tp.enabled) {
-                    body = `<div class="tp-off-msg">هذا المؤشر معطَّل ولا يُتابَع.<br>فعّله بالمفتاح في الأعلى ليبدأ التطبيق بتنبيهك.</div>`;
+                    body = `<div class="nm-msg-text">هذا المؤشر معطَّل ولا يُتابَع.<br>فعّله بالمفتاح في الأعلى ليبدأ التطبيق بتنبيهك.</div>`;
                 } else if (tp.kind === 'km') {
                     body = kpBodyHtml(m);
+                    okDis = !kpNext();
                 } else {
-                    body = `<div class="tp-date-line">تاريخ انتهاء الصلاحية: <b>${tp.date ? convertDateToReadableArabic(tp.date) : '—'}</b></div>` + tpCalendarHtml() +
-                        (m.spec ? tpSpecRowHtml(m) : '');
+                    cls = 'nm-body nm-top';
+                    body = `<div class="nm-dateline">تاريخ انتهاء الصلاحية: <b>${tp.date ? convertDateToReadableArabic(tp.date) : '—'}</b></div>` + tpCalendarHtml() + (m.spec ? tpSpecRowHtml(m) : '');
+                    okDis = !tp.date;
                 }
-                actions = `<button class="up-sheet-x" onclick="tpClose()">إلغاء</button><button class="up-sheet-ok" onclick="tpConfirm()">تأكيد</button>`;
+                actions = `<button class="nm-ok" onclick="tpConfirm()" ${okDis ? 'disabled' : ''}>تأكيد</button><button class="nm-x" onclick="tpClose()">إلغاء</button>`;
             }
-            const bodyEl = document.getElementById('tp-body');
             const keepScroll = bodyEl.scrollTop;
+            bodyEl.className = cls;
             bodyEl.innerHTML = body;
             bodyEl.scrollTop = keepScroll;
             document.getElementById('tp-actions').innerHTML = actions;
@@ -2953,18 +2981,19 @@
         function kpBodyHtml(m) {
             const odo = records.car.odometer.currentEstimatedOdo;
             const nxt = kpNext();
-            return `<div class="kp-row"><span class="kp-label">العداد الحالي للسيارة: <b><span class="num-ltr">${formatNumberWithSpace(odo)}</span> كم</b></span><button class="kp-edit" onclick="kpEditOdo()">تعديل</button></div>
-                <div class="kp-row"><span class="kp-label">العداد عند التغيير القادم:${nxt ? ` <b><span class="num-ltr">${formatNumberWithSpace(nxt)}</span> كم</b>` : ''}</span><button class="kp-edit" onclick="kpEditNext()">تعديل</button></div>
+            return `<div class="nm-row"><span class="nm-row-label">العداد الحالي للسيارة: <b><span class="num-ltr">${formatNumberWithSpace(odo)}</span> كم</b></span><button class="nm-edit" onclick="kpEditOdo()">تعديل</button></div>
+                <div class="nm-row"><span class="nm-row-label">العداد عند التغيير القادم:${nxt ? ` <b><span class="num-ltr">${formatNumberWithSpace(nxt)}</span> كم</b>` : ''}</span><button class="nm-edit" onclick="kpEditNext()">تعديل</button></div>
                 ${m.spec ? tpSpecRowHtml(m) : ''}`;
         }
-        function kpEditNext() { openOdoDialog('popupNext'); }
+                function kpEditNext() { openOdoDialog('popupNext'); }
         function nextSuggestHtml() {
             const m = getItemMeta(tp.mod, tp.key);
             const steps = kpSteps(m);
-            return `<div class="up-label" style="margin-top:10px;">أو أضِف إلى العداد الحالي:</div>
-                <div class="suggestions-row" style="grid-template-columns: repeat(${steps.length}, 1fr);">${steps.map((v, i) => `<button class="suggestion-chip-btn" onclick="odoDlgSuggest(${i})">+${formatNumberWithSpace(v)}</button>`).join('')}</div>`;
+            const cols = steps.length <= 5 ? steps.length : 3;
+            return `<div style="width:100%;max-width:320px;"><div class="nm-hint">أو أضِف إلى العداد الحالي:</div>
+                <div class="nm-opts" style="grid-template-columns:repeat(${cols},1fr);">${steps.map((v, i) => `<button class="nm-opt" onclick="odoDlgSuggest(${i})">+${formatNumberWithSpace(v)}</button>`).join('')}</div></div>`;
         }
-        function odoDlgSuggest(i) {
+                function odoDlgSuggest(i) {
             if (tp) { tp.mode = 'preset'; tp.presetIdx = i; tp.next = ''; }
             closeOdoDialog();
             if (tp) tpRender();
@@ -2973,9 +3002,9 @@
 
         function tpSpecRowHtml(m) {
             const val = tp.spec ? ` <b dir="auto" style="unicode-bidi:isolate;">${escapeHtml(tp.spec)}</b>` : (tp.specUnknown ? ' <b>غير معروف</b>' : '');
-            return `<div class="kp-row"><span class="kp-label">${m.spec.label}:${val}</span><button class="kp-edit" onclick="tpSpecOpen()">تعديل</button></div>`;
+            return `<div class="nm-row"><span class="nm-row-label">${m.spec.label}:${val}</span><button class="nm-edit" onclick="tpSpecOpen()">تعديل</button></div>`;
         }
-        function tpSpecUnknown() {
+                function tpSpecUnknown() {
             document.getElementById('spec-pop-overlay').style.display = 'none';
             tp.spec = ''; tp.specUnknown = true;
             tpRender();
@@ -2984,13 +3013,14 @@
             const m = getItemMeta(tp.mod, tp.key);
             if (!m || !m.spec) return;
             document.getElementById('spec-pop-box').innerHTML =
-                `<div class="spec-pop-title">${m.spec.label}</div>` +
-                m.spec.presets.map((v, i) => `<button class="spec-pop-opt ${tp.spec === v ? 'on' : ''}" style="unicode-bidi:plaintext;" onclick="tpSpecChoose(${i})">${escapeHtml(v)}</button>`).join('') +
-                `<button class="spec-pop-opt ${tp.specUnknown ? 'on' : ''}" onclick="tpSpecUnknown()">غير معروف</button>` +
-                `<button class="spec-pop-cancel" onclick="document.getElementById('spec-pop-overlay').style.display='none'">إلغاء</button>`;
+                `<div class="nm-head"><span class="nm-title">${m.spec.label}</span></div>` +
+                `<div class="nm-body"><div class="nm-list">` +
+                m.spec.presets.map((v, i) => `<button class="nm-optbig ${tp.spec === v ? 'on' : ''}" style="unicode-bidi:plaintext;" onclick="tpSpecChoose(${i})">${escapeHtml(v)}</button>`).join('') +
+                `<button class="nm-optbig ${tp.specUnknown ? 'on' : ''}" onclick="tpSpecUnknown()">غير معروف</button>` +
+                `</div></div><div class="nm-actions"><button class="nm-x" onclick="document.getElementById('spec-pop-overlay').style.display='none'">إلغاء</button></div>`;
             document.getElementById('spec-pop-overlay').style.display = 'flex';
         }
-        function tpSpecChoose(i) {
+                function tpSpecChoose(i) {
             const m = getItemMeta(tp.mod, tp.key);
             document.getElementById('spec-pop-overlay').style.display = 'none';
             tp.spec = m.spec.presets[i]; tp.specUnknown = false;
@@ -3079,70 +3109,101 @@
     if(cur.length>=max) return cur;
     return (cur===''&&k==='0')?'':cur+k;
   }
-  function showSub(top){
+  function showSub(){
     layer.classList.add('under');
-    layer2.classList.toggle('top',!!top);
     layer2.classList.add('show'); layer2.setAttribute('aria-hidden','false');
   }
   function closeSub(){
     layer2.classList.remove('show','top'); layer2.setAttribute('aria-hidden','true');
     layer.classList.remove('under'); subcard.innerHTML='';
   }
-  function subActions(onOk){
-    var a=el('<div class="actions"><button class="btn ghost" type="button">إلغاء</button><button class="btn primary" type="button">تأكيد</button></div>');
-    a.children[0].addEventListener('click',closeSub);
-    a.children[1].addEventListener('click',onOk);
-    return a;
+  function nmSheet(){
+    subcard.innerHTML='<div class="nm-head"></div><div class="nm-body"></div><div class="nm-actions"></div>';
+    return { head:subcard.children[0], body:subcard.children[1], acts:subcard.children[2] };
+  }
+  function nmCancel(acts){
+    var x=document.createElement('button'); x.type='button'; x.className='nm-x'; x.textContent='إلغاء';
+    x.addEventListener('click',closeSub); acts.appendChild(x);
+  }
+  function nmConfirm(acts,onOk){
+    var ok=document.createElement('button'); ok.type='button'; ok.className='nm-ok'; ok.textContent='تأكيد';
+    ok.addEventListener('click',onOk); acts.appendChild(ok); nmCancel(acts); return ok;
+  }
+  function nmPad(onKey){
+    var wrap=document.createElement('div'); wrap.className='nm-pad';
+    function row(keys){
+      var r=document.createElement('div'); r.className='nm-pad-row';
+      keys.forEach(function(k){
+        var b=document.createElement('button'); b.type='button';
+        b.className='nm-key'+((k==='del'||k==='clear')?' act':'');
+        b.textContent=(k==='del')?'حذف':(k==='clear')?'مسح':k;
+        b.addEventListener('click',function(){ onKey(k==='del'?'back':k); });
+        r.appendChild(b);
+      });
+      wrap.appendChild(r);
+    }
+    row(['0','1','2','3','4','5']); row(['del','6','7','8','9','clear']);
+    return wrap;
   }
 
   function openKeypad(o){
     var cur = o.init? String(o.init):'';
     var unitTxt = o.unit || 'كم';
-    subcard.innerHTML='<h2></h2><div class="display"><span class="num"></span><span class="unit">'+unitTxt+'</span></div>';
-    subcard.querySelector('h2').textContent=o.title;
-    var numEl=subcard.querySelector('.num');
-    var chips=document.createElement('div'); chips.className='rchips';
+    var s=nmSheet();
+    var chips=document.createElement('div'); chips.className='nm-opts';
     function sync(){
-      numEl.textContent=cur?fmt(cur):'';
+      s.head.innerHTML = cur ? '<span class="nm-val"><span>'+fmt(cur)+'</span><span class="nm-unit">'+unitTxt+'</span></span>' : '<span class="nm-title"></span>';
+      if(!cur) s.head.firstChild.textContent=o.title;
       var v=cur?parseInt(cur,10):0;
       Array.prototype.forEach.call(chips.children,function(m){ m.classList.toggle('on',v>0&&parseInt(m.dataset.v,10)===v); });
     }
     if(o.same){
-      var s=document.createElement('button'); s.type='button'; s.className='mini same'; s.dataset.v=o.same; s.textContent='مثل الزيت';
-      s.addEventListener('click',function(){ closeSub(); o.onApply(o.same); }); chips.appendChild(s);
+      var sm=document.createElement('button'); sm.type='button'; sm.className='nm-opt'; sm.style.direction='rtl'; sm.dataset.v=o.same; sm.textContent='مثل الزيت';
+      sm.addEventListener('click',function(){ closeSub(); o.onApply(o.same); }); chips.appendChild(sm);
     }
     (o.presets||[]).forEach(function(p){
-      var m=document.createElement('button'); m.type='button'; m.className='mini'; m.dataset.v=p; m.textContent=fmt(p);
+      var m=document.createElement('button'); m.type='button'; m.className='nm-opt'; m.dataset.v=p; m.textContent=fmt(p);
       m.addEventListener('click',function(){ closeSub(); o.onApply(p); });
       chips.appendChild(m);
     });
-    if(chips.children.length) subcard.appendChild(chips);
-    subcard.appendChild(buildPad(function(k){ cur=typeDigits(cur,k,o.max||7); sync(); }));
-    subcard.appendChild(subActions(function(){ var v=cur?parseInt(cur,10):0; closeSub(); o.onApply(v); }));
-    sync(); showSub(false);
+    var pad=nmPad(function(k){ cur=typeDigits(cur,k,o.max||7); sync(); });
+    if(chips.children.length){
+      chips.style.gridTemplateColumns='repeat('+(chips.children.length<=5?chips.children.length:3)+',1fr)';
+      s.body.classList.add('nm-body-opts');
+      var top=document.createElement('div'); top.style.cssText='width:100%;max-width:320px;';
+      top.appendChild(chips);
+      var sp=document.createElement('div'); sp.style.height='20px';
+      s.body.appendChild(top); s.body.appendChild(pad); s.body.appendChild(sp);
+    } else {
+      s.body.appendChild(pad);
+    }
+    nmConfirm(s.acts,function(){ var v=cur?parseInt(cur,10):0; closeSub(); o.onApply(v); });
+    sync(); showSub();
   }
 
   function openCalendar(initial, onApply, allowFuture){
-    var t=todayStr(), tp=t.split('-').map(Number);
+    var t=todayStr(), tpp=t.split('-').map(Number);
     var initStr = initial || t;
     var p=initStr.split('-').map(Number), y=p[0], m=p[1]-1, picked=initStr;
-    subcard.innerHTML='<h2>التاريخ</h2><div class="cal-line"></div><div class="cal"></div>';
-    var line=subcard.querySelector('.cal-line'), cal=subcard.querySelector('.cal');
-    function atMax(){ return !allowFuture && (y>tp[0] || (y===tp[0] && m>=tp[1]-1)); }
+    var s=nmSheet(); s.body.classList.add('nm-top');
+    var cal=document.createElement('div'); cal.className='nm-cal'; s.body.appendChild(cal);
+    function atMax(){ return !allowFuture && (y>tpp[0] || (y===tpp[0] && m>=tpp[1]-1)); }
     function draw(){
-      line.innerHTML='<b>'+dateReadable(picked)+'</b>';
+      s.head.innerHTML='<span class="nm-title" style="font-size:18px;"></span>';
+      s.head.firstChild.textContent=dateReadable(picked);
       var first=new Date(y,m,1).getDay(), total=new Date(y,m+1,0).getDate(), cells='';
-      for(var i=0;i<first;i++) cells+='<div></div>';
+      for(var i=0;i<first;i++) cells+='<div class="nm-day emp"></div>';
       for(var d=1;d<=total;d++){
         var full=y+'-'+pad2(m+1)+'-'+pad2(d);
         var fut = !allowFuture && full > t;
-        cells+='<button type="button" class="cal-day'+(full===picked?' sel':'')+(fut?' dis':'')+(full===t?' today':'')+'" data-d="'+d+'"'+(fut?' disabled':'')+'>'+d+'</button>';
+        cells+='<button type="button" class="nm-day'+(full===picked?' sel':'')+(fut?' dis':'')+(full===t?' today':'')+'" data-d="'+d+'"'+(fut?' disabled':'')+'>'+d+'</button>';
       }
+      for(var k=first+total;k<42;k++) cells+='<div class="nm-day emp"></div>';
       cal.innerHTML=
-        '<div class="cal-nav"><button type="button" data-a="y-">&#10095;</button><span>'+y+'</span><button type="button" data-a="y+"'+(!allowFuture && y>=tp[0]?' disabled':'')+'>&#10094;</button></div>'+
-        '<div class="cal-nav"><button type="button" data-a="m-">&#10095;</button><span>'+MONTHS[m]+'</span><button type="button" data-a="m+"'+(atMax()?' disabled':'')+'>&#10094;</button></div>'+
-        '<div class="cal-wd">'+WD_SHORT.map(function(w){return '<div>'+w+'</div>';}).join('')+'</div>'+
-        '<div class="cal-days">'+cells+'</div>';
+        '<div class="nm-nav"><button type="button" class="nm-nav-btn" data-a="y-">&#10095;</button><span class="nm-nav-label">'+y+'</span><button type="button" class="nm-nav-btn" data-a="y+"'+(!allowFuture && y>=tpp[0]?' disabled':'')+'>&#10094;</button></div>'+
+        '<div class="nm-nav"><button type="button" class="nm-nav-btn" data-a="m-">&#10095;</button><span class="nm-nav-label">'+MONTHS[m]+'</span><button type="button" class="nm-nav-btn" data-a="m+"'+(atMax()?' disabled':'')+'>&#10094;</button></div>'+
+        '<div class="nm-wd">'+WEEKDAYS.map(function(w){return '<span>'+w+'</span>';}).join('')+'</div>'+
+        '<div class="nm-days">'+cells+'</div>';
     }
     cal.addEventListener('click',function(e){
       var b=e.target.closest('button'); if(!b||b.disabled) return;
@@ -3151,30 +3212,26 @@
       if(a==='y-') y--; else if(a==='y+') y++;
       else if(a==='m-'){ m--; if(m<0){m=11;y--;} }
       else if(a==='m+'){ m++; if(m>11){m=0;y++;} }
-      if(!allowFuture && (y>tp[0]||(y===tp[0]&&m>tp[1]-1))){ y=tp[0]; m=tp[1]-1; }
+      if(!allowFuture && (y>tpp[0]||(y===tpp[0]&&m>tpp[1]-1))){ y=tpp[0]; m=tpp[1]-1; }
       draw();
     });
-    subcard.appendChild(subActions(function(){ closeSub(); onApply(picked); }));
-    draw(); showSub(false);
+    nmConfirm(s.acts,function(){ closeSub(); onApply(picked); });
+    draw(); showSub();
   }
 
   function openSelect(o){
-    var selectedVal = o.init || '';
-    subcard.innerHTML='<h2></h2>';
-    subcard.querySelector('h2').textContent=o.title;
-    var chips=document.createElement('div'); chips.className='rchips';
-    chips.style.margin = '16px 0';
-    
+    var s=nmSheet();
+    s.head.innerHTML='<span class="nm-title"></span>'; s.head.firstChild.textContent=o.title;
+    var list=document.createElement('div'); list.className='nm-list';
     o.presets.forEach(function(p){
-      var m=document.createElement('button'); m.type='button'; m.className='mini'+(p===selectedVal?' on':''); m.dataset.v=p; m.textContent=p;
-      m.style.fontSize = '15px'; m.style.padding = '8px 14px';
-      m.addEventListener('click',function(){ closeSub(); o.onApply(p); });
-      chips.appendChild(m);
+      var b=document.createElement('button'); b.type='button'; b.className='nm-optbig'+(p===(o.init||'')?' on':''); b.textContent=p;
+      b.style.unicodeBidi='plaintext';
+      b.addEventListener('click',function(){ closeSub(); o.onApply(p); });
+      list.appendChild(b);
     });
-    
-    subcard.appendChild(chips);
-    subcard.appendChild(subActions(function(){ closeSub(); o.onApply(selectedVal); }));
-    showSub(false);
+    s.body.appendChild(list);
+    nmCancel(s.acts);
+    showSub();
   }
 
   function shortDate(s){ if(!s) return ''; var p=s.split('-').map(Number); return p[2]+' '+MONTHS[p[1]-1]+' '+p[0]; }

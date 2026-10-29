@@ -283,7 +283,7 @@
             transition: border-color 0.2s;
         }
         .home-card:active { border-color: #b8860b; }
-        .back-slate { width: 100%; height: 54px; border: none; border-radius: 12px; background: #4b5f78; color: #fff; font-family: inherit; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 6px; -webkit-tap-highlight-color: transparent; }
+        .back-slate { width: 100%; height: 54px; border: none; border-radius: 12px; background: #4b5f78; color: #fff; font-family: inherit; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 36px; -webkit-tap-highlight-color: transparent; }
         .back-slate:active { background: #3d4e63; }
         .car-hero { display: flex; align-items: center; justify-content: center; height: 90px; margin-top: 8px; }
         .cards-row { display: flex; gap: 14px; width: 100%; }
@@ -1588,8 +1588,8 @@
                 { key: 'brakePadsRear', label: 'بلاكات خلفية', type: 'km', defaultMax: '80000', presets: [40000, 60000, 80000, 100000, 120000] }
             ],
             extra: [
-                { key: 'gplControl', label: 'مراقبة GPL', type: 'time', presets: [12, 24, 36] },
-                { key: 'extinguisherControl', label: 'مراقبة الطفاية', type: 'time', presets: [6, 12, 24] },
+                { key: 'gplControl', label: 'مراقبة GPL', type: 'time', fixedDate: true, presets: [12, 24, 36] },
+                { key: 'extinguisherControl', label: 'مراقبة الطفاية', type: 'time', fixedDate: true, presets: [6, 12, 24] },
                 { key: 'gearOil', label: 'زيت علبة السرعة', type: 'km', defaultMax: '40000', presets: [40000, 60000, 80000, 100000, 120000], spec: { label: 'نوع زيت العلبة', presets: ['ATF', '75W-80', '75W-90', '80W-90', 'CVT'], warn: 'أنواع زيوت علب السرعة غير قابلة للتبادل: الأوتوماتيكية والـCVT واليدوية لكلٍّ زيتها، والخطأ فيها قد يتلف العلبة.' } },
                 { key: 'acFilter', label: 'فلتر المكيف', type: 'km', defaultMax: '20000', presets: [10000, 15000, 20000, 25000, 30000] },
                 { key: 'brakeFluid', label: 'سائل الفرامل', type: 'time', presets: [12, 24, 36], spec: { label: 'درجة سائل الفرامل', presets: ['DOT 3', 'DOT 4', 'DOT 4 LV', 'DOT 5.1', 'DOT 5'], warn: 'السائل السيليكوني DOT 5 لا يُخلط بغيره من الدرجات، وتختلف الدرجات في حرارة الغليان. استعمل ما يوصي به مصنّع سيارتك.' } },
@@ -2990,7 +2990,7 @@
         }
                 function tpRender() {
             const m = getItemMeta(tp.mod, tp.key);
-            document.getElementById('tp-title').innerText = (tp.warn || !tp.enabled) ? '' : (tp.kind === 'km' ? 'كم' : (tp.date ? convertDateToReadableArabic(tp.date) : 'التاريخ'));
+            document.getElementById('tp-title').innerText = tp.warn ? '' : (!tp.enabled ? 'معطَّل' : (tp.kind === 'km' ? 'مفعَّل' : (tp.date ? convertDateToReadableArabic(tp.date) : 'اختر التاريخ')));
             nmTitle('tp-pt', '', tp.warn ? 'تأكّد من تغيير المواصفة' : (!tp.enabled ? 'فعّل المؤشر لمتابعته' : (tp.kind === 'km' ? 'عدّل موعد تغيير ' + m.label : 'اختر تاريخ انتهاء ' + m.label)));
             document.getElementById('tp-sw').classList.toggle('on', tp.enabled);
             document.getElementById('tp-err').innerText = '';
@@ -3300,6 +3300,7 @@
     return t.getFullYear()+'-'+pad2(t.getMonth()+1)+'-'+pad2(Math.min(p[2],dim));
   }
 
+  function fixedDate(it){ return mod==='docs' || !!(it && it.fixedDate); }
   function toggleItem(it,b){
     var i=selected.indexOf(it.key);
     if(i>-1){ selected.splice(i,1); delete dur[it.key]; delete dates[it.key]; delete spec[it.key]; }
@@ -3344,29 +3345,23 @@
     ttl.textContent=TITLES[mod].s2;
     stage.innerHTML='';
     var rows=el('<div class="rows"></div>');
-    if(mod==='docs'){
-      stage.appendChild(el('<p class="hint">حدد تاريخ انتهاء الصلاحية القادم لكل وثيقة مختارة</p>'));
-      selected.forEach(function(k){
-        var it=item(k);
-        var r=el('<div class="row"><span class="rname"></span></div>');
-        r.querySelector('.rname').textContent=it.label;
-        var b=el('<button type="button" class="fieldbtn slim"></button>');
-        function paint(){ b.textContent=dates[k]?shortDate(dates[k]):'اختر التاريخ'; b.classList.toggle('empty',!dates[k]); updateOk(); }
-        paint();
-        b.addEventListener('click',function(){
-          var cur=records.docs[k]&&records.docs[k].expiryDate;
-          openCalendar(dates[k]||(cur&&cur>todayStr()?cur:todayStr()), function(v){ dates[k]=v; paint(); }, true, 'اختر تاريخ انتهاء الصلاحية');
-        });
-        r.appendChild(b); rows.appendChild(r);
-      });
-      stage.appendChild(rows);
-      return;
-    }
+    if(mod==='docs') stage.appendChild(el('<p class="hint">حدد تاريخ انتهاء الصلاحية القادم لكل وثيقة مختارة</p>'));
+    else if(selected.some(function(k){return fixedDate(item(k));})) stage.appendChild(el('<p class="hint">مراقبة الغاز والطفاية موعدها تاريخ محدد: اختر تاريخ انتهاء الصلاحية، وبقية المؤشرات بمدة</p>'));
     selected.forEach(function(k){
       var it=item(k), u=unitOf(it), t=isTime(it);
       var r=el('<div class="row"><span class="rname"></span></div>');
       r.querySelector('.rname').textContent=it.label;
       var b=el('<button type="button" class="fieldbtn slim"></button>');
+      if(fixedDate(it)){
+        function paintD(){ b.textContent=dates[k]?shortDate(dates[k]):'اختر التاريخ'; b.classList.toggle('empty',!dates[k]); updateOk(); }
+        paintD();
+        b.addEventListener('click',function(){
+          var cur=records[mod][k]&&records[mod][k].expiryDate;
+          openCalendar(dates[k]||(cur&&cur>todayStr()?cur:todayStr()), function(v){ dates[k]=v; paintD(); }, true, 'اختر تاريخ انتهاء الصلاحية');
+        });
+        r.appendChild(b); rows.appendChild(r);
+        return;
+      }
       function paint(){ b.textContent=dur[k]?fmt(dur[k])+' '+u:'اختر المدة'; b.classList.toggle('empty',!dur[k]); updateOk(); }
       paint();
       b.addEventListener('click',function(){
@@ -3419,7 +3414,7 @@
   function updateOk(){
     var ok=true;
     if(step===1) ok=selected.length>0;
-    else if(step===2) ok = (mod==='docs') ? selected.every(function(k){return !!dates[k];}) : selected.every(function(k){return dur[k]>0;});
+    else if(step===2) ok = selected.every(function(k){ return fixedDate(item(k)) ? !!dates[k] : dur[k]>0; });
     okBtn.disabled=!ok;
   }
   function go(n){
@@ -3467,7 +3462,7 @@
     selected.forEach(function(k){
       var it=item(k), prev=records[mod][k]||{}, obj;
       if(isTime(it)){
-        obj={ expiryDate: (mod==='docs') ? dates[k] : addMonthsStr(date,dur[k]), active:true };
+        obj={ expiryDate: fixedDate(it) ? dates[k] : addMonthsStr(date,dur[k]), active:true };
       } else {
         obj={ max: odo+dur[k], lastDate: date, lastOdo: odo, active:true };
       }
@@ -3493,7 +3488,6 @@
     if(step<totalSteps) go(step+1); else finish();
   });
   $('bu-cancel').addEventListener('click',close);
-  layer2.addEventListener('click',function(e){ if(e.target===layer2) closeSub(); });
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape'){
       if(layer2.classList.contains('show')) closeSub();

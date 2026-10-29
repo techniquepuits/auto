@@ -2990,7 +2990,7 @@
         }
                 function tpRender() {
             const m = getItemMeta(tp.mod, tp.key);
-            document.getElementById('tp-title').innerText = tp.warn ? '' : (!tp.enabled ? 'معطَّل' : (tp.kind === 'km' ? 'مفعَّل' : (tp.date ? convertDateToReadableArabic(tp.date) : 'اختر التاريخ')));
+            document.getElementById('tp-title').innerHTML = tp.warn ? '' : (!tp.enabled ? 'معطَّل' : (tp.kind === 'km' ? 'مفعَّل' : (tp.date ? convertDateToReadableArabic(tp.date) : 'اختر التاريخ')));
             nmTitle('tp-pt', '', tp.warn ? 'تأكّد من تغيير المواصفة' : (!tp.enabled ? 'فعّل المؤشر لمتابعته' : (tp.kind === 'km' ? 'عدّل موعد تغيير ' + m.label : 'اختر تاريخ انتهاء ' + m.label)));
             document.getElementById('tp-sw').classList.toggle('on', tp.enabled);
             document.getElementById('tp-err').innerText = '';
@@ -3128,7 +3128,9 @@
     extra:   { main:'تحديث المؤشرات الإضافية',      s1:'ماذا غيّرت؟',          s2:'مدة الصلاحية' }
   };
 
-  var mod='oil', items=[];
+  var mod='oil', items=[], linked=[];
+  var LINKS = { oil:['gearOil','acFilter'], general:['waterPump','accessoryBelts'] };   // عناصر تبقى في «إضافية» ويمكن تحديثها مع هذه المجموعة
+  function own(k){ return MODULE_ORDER.filter(function(mm){ return metadata[mm].some(function(i){ return i.key===k; }); })[0]; }
   var step=1, totalSteps=3, selected=[], dur={}, spec={}, dates={}, date='', odo=0, odoTouched=false, amount='';
 
   function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
@@ -3286,12 +3288,12 @@
   }
 
   function shortDate(s){ if(!s) return ''; var p=s.split('-').map(Number); return p[2]+' '+MONTHS[p[1]-1]+' '+p[0]; }
-  function item(k){ return items.filter(function(i){return i.key===k;})[0]; }
+  function item(k){ return items.concat(linked).filter(function(i){return i.key===k;})[0]; }
   function isOn(k){ return selected.indexOf(k)>-1; }
   function isTime(it){ return it.type==='time'; }
   function unitOf(it){ return isTime(it) ? 'شهر' : 'كم'; }
   function withSpec(){ return selected.filter(function(k){return !!item(k).spec;}); }
-  function prevSpec(k){ var o=records[mod][k]; return (o && o.spec) || ''; }
+  function prevSpec(k){ var o=records[own(k)][k]; return (o && o.spec) || ''; }
 
   function addMonthsStr(s,n){
     var p=s.split('-').map(Number);
@@ -3313,16 +3315,21 @@
     ttl.textContent=TITLES[mod].s1;
     stage.innerHTML='';
     if(mod==='docs') stage.appendChild(el('<p class="hint">حدد الوثائق التي تريد تحديثها وتجديدها</p>'));
-    var frame=el('<div class="frame" role="group"></div>');
-    frame.style.gridTemplateRows='repeat('+Math.ceil(items.length/2)+',auto)';
-    items.forEach(function(it){
-      var b=document.createElement('button'); b.type='button'; b.className='chk'+(isOn(it.key)?' on':'');
-      b.innerHTML='<span class="box"></span><span></span>';
-      b.lastChild.textContent=it.label;
-      b.addEventListener('click',function(){ toggleItem(it,b); });
-      frame.appendChild(b);
-    });
-    stage.appendChild(frame);
+    function buildFrame(list,extraCls){
+      var fr=el('<div class="frame" role="group"></div>');
+      fr.style.gridTemplateRows='repeat('+Math.ceil(list.length/2)+',auto)';
+      if(extraCls) fr.style.marginTop='12px';
+      list.forEach(function(it){
+        var b=document.createElement('button'); b.type='button'; b.className='chk'+(isOn(it.key)?' on':'');
+        b.innerHTML='<span class="box"></span><span></span>';
+        b.lastChild.textContent=it.label;
+        b.addEventListener('click',function(){ toggleItem(it,b); });
+        fr.appendChild(b);
+      });
+      return fr;
+    }
+    stage.appendChild(buildFrame(items,false));
+    if(linked.length) stage.appendChild(buildFrame(linked,true));
     if(mod==='docs') return;
 
     stage.appendChild(el('<div class="sec-title">تاريخ التغيير</div>'));
@@ -3356,7 +3363,7 @@
         function paintD(){ b.textContent=dates[k]?shortDate(dates[k]):'اختر التاريخ'; b.classList.toggle('empty',!dates[k]); updateOk(); }
         paintD();
         b.addEventListener('click',function(){
-          var cur=records[mod][k]&&records[mod][k].expiryDate;
+          var cur=records[own(k)][k]&&records[own(k)][k].expiryDate;
           openCalendar(dates[k]||(cur&&cur>todayStr()?cur:todayStr()), function(v){ dates[k]=v; paintD(); }, true, 'اختر تاريخ انتهاء الصلاحية');
         });
         r.appendChild(b); rows.appendChild(r);
@@ -3366,7 +3373,7 @@
       paint();
       b.addEventListener('click',function(){
         var same=0;
-        if(!t && mod==='oil' && k!=='engineOilNextOdo' && item('engineOilNextOdo') && isOn('engineOilNextOdo')) same=dur['engineOilNextOdo']||0;
+        if(!t && mod==='oil' && own(k)==='oil' && k!=='engineOilNextOdo' && item('engineOilNextOdo') && isOn('engineOilNextOdo')) same=dur['engineOilNextOdo']||0;
         openKeypad({title:'اكتب مدة صلاحية '+it.label, init:dur[k]||'', max:t?3:6, presets:it.presets, unit:u, same:same,
                     onApply:function(v){ if(v>0) dur[k]=v; else delete dur[k]; paint(); }});
       });
@@ -3425,6 +3432,7 @@
 
   function open(m){
     mod=m; items=metadata[m].slice();
+    linked=(LINKS[m]||[]).map(function(k){ return metadata.extra.filter(function(i){return i.key===k;})[0]; }).filter(Boolean);
     selected=[]; dur={}; spec={}; dates={}; amount=''; date=todayStr();
     odo=records.car.odometer.currentEstimatedOdo; odoTouched=false;
     mainTitle.textContent=TITLES[m].main;
@@ -3460,14 +3468,14 @@
       var w=document.getElementById('welcome-odo-display'); if(w) w.innerText=formatNumberWithSpace(odo);
     }
     selected.forEach(function(k){
-      var it=item(k), prev=records[mod][k]||{}, obj;
+      var it=item(k), prev=records[own(k)][k]||{}, obj;
       if(isTime(it)){
         obj={ expiryDate: fixedDate(it) ? dates[k] : addMonthsStr(date,dur[k]), active:true };
       } else {
         obj={ max: odo+dur[k], lastDate: date, lastOdo: odo, active:true };
       }
       if(it.spec){ var v=(spec[k]||prev.spec||'').trim().slice(0,40); if(v) obj.spec=v; }
-      records[mod][k]=obj;
+      records[own(k)][k]=obj;
     });
     saveAppData();
     // المبلغ الكلي يُسجَّل مصروفًا واحدًا في قائمة المصاريف

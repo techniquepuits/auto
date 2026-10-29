@@ -1087,6 +1087,16 @@
 .nm-tankbtn { height: 28px; background: #252525; border: 1px solid #444; border-radius: 8px; color: #ffda75; font-weight: bold; font-size: 13px; font-family: inherit; cursor: pointer; direction: ltr; }
 .nm-tankbtn:active { background: #444; }
 .nm-tankbtn.on { background: #b8860b; color: #000; border-color: #b8860b; }
+
+/* ===== v10: خطوة الملخص في التحديث الجماعي ===== */
+#bu-root .sum{display:flex;flex-direction:column;gap:10px}
+#bu-root .sum-meta{border:1px solid var(--frame);border-radius:12px;padding:8px 12px;background:rgba(255,255,255,.35);font-size:14px;line-height:2}
+#bu-root .sum-meta div{display:flex;justify-content:space-between;gap:8px}
+#bu-root .sum-meta b{color:var(--ink);font-weight:700}
+#bu-root .sum-item{border:1px solid var(--frame);border-radius:12px;padding:8px 12px;background:#fff}
+#bu-root .sum-name{font-weight:700;font-size:15px;color:var(--ink);margin-bottom:2px}
+#bu-root .sum-line{font-size:13.5px;color:var(--ink-muted);display:flex;justify-content:space-between;gap:8px;line-height:1.9}
+#bu-root .sum-line b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
@@ -3131,7 +3141,7 @@
   var mod='oil', items=[], linked=[];
   var LINKS = { oil:['gearOil','acFilter'], general:['waterPump','accessoryBelts'] };   // عناصر تبقى في «إضافية» ويمكن تحديثها مع هذه المجموعة
   function own(k){ return MODULE_ORDER.filter(function(mm){ return metadata[mm].some(function(i){ return i.key===k; }); })[0]; }
-  var step=1, totalSteps=3, selected=[], dur={}, spec={}, dates={}, date='', odo=0, odoTouched=false, amount='';
+  var step=1, totalSteps=4, selected=[], dur={}, spec={}, dates={}, date='', odo=0, odoTouched=false, amount='';
 
   function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
   function pad2(n){ return String(n).padStart(2,'0'); }
@@ -3302,6 +3312,7 @@
     return t.getFullYear()+'-'+pad2(t.getMonth()+1)+'-'+pad2(Math.min(p[2],dim));
   }
 
+  function needOdo(){ return selected.some(function(k){ return !fixedDate(item(k)); }); }
   function fixedDate(it){ return mod==='docs' || !!(it && it.fixedDate); }
   function toggleItem(it,b){
     var i=selected.indexOf(it.key);
@@ -3340,10 +3351,10 @@
 
     stage.appendChild(el('<div class="sec-title">العداد عند التغيير</div>'));
     var oBtn=el('<button type="button" class="fieldbtn"></button>');
-    function odoTxt(){ oBtn.textContent=fmt(odo)+' كم'; }
+    function odoTxt(){ oBtn.textContent= odo>0 ? fmt(odo)+' كم' : 'اكتب العداد عند التغيير'; oBtn.classList.toggle('empty',!(odo>0)); }
     odoTxt();
     oBtn.addEventListener('click',function(){
-      openKeypad({title:'اكتب العداد عند التغيير', init:odo, max:6, unit:'كم', onApply:function(v){ if(v>0){ odo=v; odoTouched=true; odoTxt(); } }});
+      openKeypad({title:'اكتب العداد عند التغيير', init:odo>0?odo:'', max:6, unit:'كم', onApply:function(v){ if(v>0){ odo=v; odoTouched=true; odoTxt(); updateOk(); } }});
     });
     stage.appendChild(oBtn);
   }
@@ -3401,6 +3412,35 @@
     }
   }
 
+  function renderSummary(){
+    ttl.textContent='راجع ما أدخلته';
+    stage.innerHTML='';
+    stage.appendChild(el('<p class="hint">تأكد من المعطيات التالية ثم أكّد الحفظ النهائي، أو ارجع لتعديل أي شيء</p>'));
+    var wrap=el('<div class="sum"></div>');
+    var meta=el('<div class="sum-meta"></div>');
+    function metaRow(label,val){ var r=el('<div><span></span><b></b></div>'); r.children[0].textContent=label; r.children[1].textContent=val; meta.appendChild(r); }
+    if(mod!=='docs'){ metaRow('تاريخ التغيير', dateReadable(date)); if(odo>0) metaRow('العداد عند التغيير', fmt(odo)+' كم'); }
+    metaRow('المبلغ الكلي', amount ? fmt(amount)+' دج' : 'لم يُحدَّد');
+    wrap.appendChild(meta);
+    selected.forEach(function(k){
+      var it=item(k), box=el('<div class="sum-item"><div class="sum-name"></div></div>');
+      box.firstChild.textContent=it.label;
+      function line(label,val){ var r=el('<div class="sum-line"><span></span><b></b></div>'); r.children[0].textContent=label; r.children[1].textContent=val; box.appendChild(r); }
+      if(it.spec && spec[k]) line(it.spec.label, spec[k]);
+      if(fixedDate(it)){
+        line('الموعد القادم', 'حتى '+shortDate(dates[k]));
+      } else if(isTime(it)){
+        line('مدة الصلاحية', fmt(dur[k])+' شهر');
+        line('الموعد القادم', 'حتى '+shortDate(addMonthsStr(date,dur[k])));
+      } else {
+        line('مدة الصلاحية', fmt(dur[k])+' كم');
+        line('الموعد القادم', 'عند '+fmt(odo+dur[k])+' كم');
+      }
+      wrap.appendChild(box);
+    });
+    stage.appendChild(wrap);
+  }
+
   function renderAmount(){
     ttl.textContent='المبلغ الكلي';
     stage.innerHTML='';
@@ -3420,13 +3460,15 @@
   }
   function updateOk(){
     var ok=true;
-    if(step===1) ok=selected.length>0;
+    if(step===1) ok = selected.length>0 && (!needOdo() || odo>0);
     else if(step===2) ok = selected.every(function(k){ return fixedDate(item(k)) ? !!dates[k] : dur[k]>0; });
     okBtn.disabled=!ok;
   }
   function go(n){
     step=n; updateDots();
-    if(n===1) render1(); else if(n===2) render2(); else renderAmount();
+    okBtn.textContent = n===4 ? 'تأكيد نهائي' : 'تأكيد';
+    $('bu-cancel').textContent = n===4 ? 'رجوع' : 'إلغاء';
+    if(n===1) render1(); else if(n===2) render2(); else if(n===3) renderAmount(); else renderSummary();
     stage.scrollTop=0; updateOk();
   }
 
@@ -3434,7 +3476,7 @@
     mod=m; items=metadata[m].slice();
     linked=(LINKS[m]||[]).map(function(k){ return metadata.extra.filter(function(i){return i.key===k;})[0]; }).filter(Boolean);
     selected=[]; dur={}; spec={}; dates={}; amount=''; date=todayStr();
-    odo=records.car.odometer.currentEstimatedOdo; odoTouched=false;
+    odo=0; odoTouched=false;
     mainTitle.textContent=TITLES[m].main;
     go(1);
     window.scrollTo(0,0);
@@ -3495,7 +3537,7 @@
     if(okBtn.disabled) return;
     if(step<totalSteps) go(step+1); else finish();
   });
-  $('bu-cancel').addEventListener('click',close);
+  $('bu-cancel').addEventListener('click',function(){ if(step===4) go(3); else close(); });
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape'){
       if(layer2.classList.contains('show')) closeSub();

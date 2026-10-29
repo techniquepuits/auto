@@ -1071,6 +1071,19 @@
 .nm-pt-sub:empty { display: none; }
 .nm-pt-main { font-size: 19px; font-weight: bold; color: #2a2418; line-height: 1.4; }
 .nm-sheet, #bu-root #bu-layer2 #bu-subcard { flex: none; height: min(75vh, calc(100vh - 140px)) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.35) !important; border-color: #000 !important; }
+
+/* ===== v6 ===== */
+.nm-pt-main { font-size: 23px; line-height: 1.5; }
+.nm-val .nm-unit:only-child { font-size: 20px; opacity: 1; font-weight: bold; }
+.nm-sep { width: 100%; max-width: 320px; height: 1px; background: rgba(255,255,255,0.2); margin: 4px 0; flex: none; }
+.nm-up { justify-content: flex-start; padding-top: 22px; }
+.nm-up::before, .nm-up::after { display: none; }
+.nm-info { margin: auto 0; text-align: center; font-size: 11.5px; line-height: 1.9; color: rgba(255,255,255,0.55); padding-top: 10px; }
+.nm-tankbox { width: 100%; max-width: 320px; }
+.nm-tank { display: flex; flex-direction: column; gap: 4px; }
+.nm-tankbtn { height: 28px; background: #252525; border: 1px solid #444; border-radius: 8px; color: #ffda75; font-weight: bold; font-size: 13px; font-family: inherit; cursor: pointer; direction: ltr; }
+.nm-tankbtn:active { background: #444; }
+.nm-tankbtn.on { background: #b8860b; color: #000; border-color: #b8860b; }
 </style>
 </head>
 <body>
@@ -1203,7 +1216,6 @@
             <div class="nm-head" id="exp-head"></div>
             <div id="exp-step1" class="nm-body"><div id="exp-cats" class="nm-list"></div></div>
             <div id="exp-step2" class="nm-body nm-top" style="display:none;">
-                <div class="nm-catline"><span id="exp-catname"></span><button class="nm-edit" onclick="expShowStep1()">تغيير</button></div>
                 <div class="nm-opts" id="fuel-chips" style="grid-template-columns:repeat(5,1fr);">
                     <button class="nm-opt" onclick="fuelSetAmount(1000)">1000</button>
                     <button class="nm-opt" onclick="fuelSetAmount(1500)">1500</button>
@@ -1211,9 +1223,11 @@
                     <button class="nm-opt" onclick="fuelSetAmount(2500)">2500</button>
                     <button class="nm-opt" onclick="fuelSetAmount(3000)">3000</button>
                 </div>
+                <div class="nm-sep" id="fuel-sep"></div>
                 <div class="nm-pad" id="fuel-pad"></div>
                 <input type="text" id="exp-note" class="nm-input" maxlength="40" placeholder="ملاحظة (اختيارية): مثل بطارية أو غرامة سرعة">
                 <div class="nm-date-row"><span>التاريخ</span><input type="date" id="fuel-date" class="nm-input" style="width:auto;"></div>
+                <div class="nm-tankbox" id="fuel-tank-box" style="display:none;"><div class="nm-hint" style="margin:6px 0 4px;">حالة الخزان بعد التعبئة</div><div class="nm-tank" id="fuel-tank"></div></div>
             </div>
             <div id="fuel-err" class="nm-err"></div>
             <div class="nm-actions" id="exp-actions"></div>
@@ -1858,6 +1872,12 @@
             el.children[0].textContent = sub || '';
             el.children[1].textContent = main || '';
         }
+        function odoLastInfoHtml() {
+            const log = records.car.odoLog || [];
+            const l = log[log.length - 1];
+            if (!l) return '';
+            return `<div class="nm-info"><div>آخر تعديل يدوي</div><div>${convertDateToReadableArabic(l.date)}</div><div><span class="num-ltr">${formatNumberWithSpace(l.odo)}</span> كم</div></div>`;
+        }
         function renderOdoDialog() {
             let d = odoDlg;
             const head = document.getElementById('odo-dlg-title');
@@ -1865,8 +1885,12 @@
             const errEl = document.getElementById('odo-dlg-err');
             const acts = document.getElementById('odo-dlg-actions');
             errEl.innerText = '';
-            nmTitle('odo-pt', '', d.view === 'pad' ? (d.origin === 'popupNext' ? '' : (d.field === 'odo' ? 'تعديل عداد السيارة' : 'تعديل معدل السير الشهري')) : 'تنبيه');
-            if (d.view === 'pad' && d.origin === 'popupNext' && tp) { const mm = getItemMeta(tp.mod, tp.key); nmTitle('odo-pt', mm ? mm.label : '', 'تعديل العداد عند التغيير القادم'); }
+            let ttl;
+            if (d.view === 'replace') ttl = 'أكّد استبدال العداد السابق';
+            else if (d.view === 'jump') ttl = 'تأكّد من صحة العداد';
+            else if (d.origin === 'popupNext') { const mm = tp ? getItemMeta(tp.mod, tp.key) : null; ttl = mm ? 'اكتب عداد التغيير القادم لـ' + mm.label : 'اكتب العداد عند التغيير القادم'; }
+            else ttl = d.field === 'odo' ? 'اكتب عداد السيارة الحالي' : 'اكتب معدل السير الشهري';
+            nmTitle('odo-pt', '', ttl);
 
             if (d.view === 'replace') {
                 let log = records.car.odoLog;
@@ -1901,13 +1925,11 @@
             const isNext = d.origin === 'popupNext';
             const val = d[d.field];
             const title = isNext ? 'اكتب العداد عند التغيير القادم' : (isOdo ? 'اكتب العداد الحالي للسيارة' : 'اكتب معدل السير الشهري');
-            head.innerHTML = val
-                ? `<span class="nm-val"><span>${formatNumberWithSpace(val)}</span><span class="nm-unit">${isOdo ? 'كم' : 'كم / شهر'}</span></span>`
-                : `<span class="nm-title">${title}</span>`;
-            body.className = isNext ? 'nm-body nm-body-opts' : 'nm-body';
+            head.innerHTML = `<span class="nm-val">${val ? '<span>' + formatNumberWithSpace(val) + '</span>' : ''}<span class="nm-unit">${isOdo ? 'كم' : 'كم / شهر'}</span></span>`;
+            body.className = isNext ? 'nm-body nm-body-opts' : 'nm-body nm-up';
             body.innerHTML = (isNext ? nextSuggestHtml() : '') +
                 `<div class="nm-pad">${nmPadHtml('odoDlgDigit', 'odoDlgDel', 'odoDlgClear')}</div>` +
-                (isNext ? '<div style="height:20px;"></div>' : '');
+                (isNext ? '<div style="height:20px;"></div>' : (isOdo ? odoLastInfoHtml() : ''));
             errEl.innerText = d.msg || '';
             acts.innerHTML = `<button class="nm-ok" onclick="odoDlgPadConfirm()" ${val ? '' : 'disabled'}>تأكيد</button>
                 <button class="nm-x" onclick="odoDlgCancel()">إلغاء</button>`;
@@ -2507,6 +2529,7 @@
         ];
         const expCatLabel = k => (EXP_CATS.find(c => c.k === k) || EXP_CATS[0]).label;
         let fuelAmountStr = '';
+        let fuelTank = '';
         let fuelMsg = '';
         let expCat = 'fuel';
 
@@ -2571,14 +2594,18 @@
 
         function fuelRefreshAmount() {
             const head = document.getElementById('exp-head');
-            if (!fuelAmountStr) head.innerHTML = `<span class="nm-title">${expCatLabel(expCat)}: اكتب المبلغ</span>`;
-            else head.innerHTML = `<span class="nm-val"><span>${formatNumberWithSpace(fuelAmountStr)}</span><span class="nm-unit">دج</span></span>`;
+            head.innerHTML = `<span class="nm-val">${fuelAmountStr ? '<span>' + formatNumberWithSpace(fuelAmountStr) + '</span>' : ''}<span class="nm-unit">دج</span></span>`;
             const ok = document.getElementById('fuel-ok-btn');
-            if (ok) ok.disabled = !fuelAmountStr;
+            if (ok) ok.disabled = !fuelAmountStr || (expCat === 'fuel' && !fuelTank);
         }
+        function fuelTankRender() {
+            const el = document.getElementById('fuel-tank'); if (!el) return;
+            el.innerHTML = ['F', '3/4', '1/2', '1/4', 'E'].map(v => `<button class="nm-tankbtn ${fuelTank === v ? 'on' : ''}" onclick="fuelSetTank('${v}')">${v}</button>`).join('');
+        }
+        function fuelSetTank(v) { fuelTank = v; fuelTankRender(); document.getElementById('fuel-err').innerText = ''; fuelRefreshAmount(); }
         function expShowStep1() {
             document.getElementById('exp-head').innerHTML = '<span class="nm-title">نوع المصروف</span>';
-            nmTitle('fuel-pt', '', 'إضافة مصروف جديد');
+            nmTitle('fuel-pt', '', 'اختر نوع المصروف');
             document.getElementById('exp-cats').innerHTML = EXP_CATS.map(c => `<button class="nm-optbig" onclick="expPick('${c.k}')">${c.label}</button>`).join('');
             document.getElementById('exp-step1').style.display = '';
             document.getElementById('exp-step2').style.display = 'none';
@@ -2588,8 +2615,11 @@
         function expPick(k) {
             expCat = k;
             fuelAmountStr = '';
-            document.getElementById('exp-catname').innerText = expCatLabel(k);
-            nmTitle('fuel-pt', 'إضافة مصروف جديد', expCatLabel(k));
+            fuelTank = '';
+            nmTitle('fuel-pt', '', 'اكتب مبلغ ' + expCatLabel(k));
+            document.getElementById('fuel-sep').style.display = k === 'fuel' ? '' : 'none';
+            document.getElementById('fuel-tank-box').style.display = k === 'fuel' ? '' : 'none';
+            fuelTankRender();
             document.getElementById('fuel-chips').style.display = k === 'fuel' ? '' : 'none';
             document.getElementById('exp-note').style.display = k === 'fuel' ? 'none' : '';
             document.getElementById('exp-note').value = '';
@@ -2630,7 +2660,9 @@
             let d = document.getElementById('fuel-date').value;
             if (!amount || amount <= 0) { err.innerText = 'اكتب المبلغ المدفوع أولًا.'; return; }
             if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { err.innerText = 'التاريخ غير صحيح.'; return; }
+            if (expCat === 'fuel' && !fuelTank) { err.innerText = 'اختر حالة الخزان بعد التعبئة.'; return; }
             let entry = { id: Date.now(), d: d, a: amount, c: expCat };
+            if (expCat === 'fuel') entry.t = fuelTank;
             let note = expCat === 'fuel' ? '' : document.getElementById('exp-note').value.trim().slice(0, 40);
             if (note) entry.n = note;
             let arr = fuelLoad();
@@ -2965,8 +2997,8 @@
         }
                 function tpRender() {
             const m = getItemMeta(tp.mod, tp.key);
-            document.getElementById('tp-title').innerText = m.label;
-            nmTitle('tp-pt', m.label, tp.warn ? 'تأكيد تغيير المواصفة' : (!tp.enabled ? 'تفعيل المؤشر' : (tp.kind === 'km' ? 'تعديل موعد التغيير' : 'تعديل مدة الصلاحية')));
+            document.getElementById('tp-title').innerText = (tp.warn || !tp.enabled) ? '' : (tp.kind === 'km' ? 'كم' : (tp.date ? convertDateToReadableArabic(tp.date) : 'التاريخ'));
+            nmTitle('tp-pt', '', tp.warn ? 'تأكّد من تغيير المواصفة' : (!tp.enabled ? 'فعّل المؤشر لمتابعته' : (tp.kind === 'km' ? 'عدّل موعد تغيير ' + m.label : 'اختر تاريخ انتهاء ' + m.label)));
             document.getElementById('tp-sw').classList.toggle('on', tp.enabled);
             document.getElementById('tp-err').innerText = '';
             const bodyEl = document.getElementById('tp-body');
@@ -2983,7 +3015,7 @@
                     okDis = !kpNext();
                 } else {
                     cls = 'nm-body nm-top';
-                    body = `<div class="nm-dateline">تاريخ انتهاء الصلاحية: <b>${tp.date ? convertDateToReadableArabic(tp.date) : '—'}</b></div>` + tpCalendarHtml() + (m.spec ? tpSpecRowHtml(m) : '');
+                    body = tpCalendarHtml() + (m.spec ? tpSpecRowHtml(m) : '');
                     okDis = !tp.date;
                 }
                 actions = `<button class="nm-ok" onclick="tpConfirm()" ${okDis ? 'disabled' : ''}>تأكيد</button><button class="nm-x" onclick="tpClose()">إلغاء</button>`;
@@ -3014,7 +3046,7 @@
             const steps = kpSteps(m);
             const cols = steps.length <= 5 ? steps.length : 3;
             return `<div style="width:100%;max-width:320px;"><div class="nm-hint">أو أضِف إلى العداد الحالي:</div>
-                <div class="nm-opts" style="grid-template-columns:repeat(${cols},1fr);">${steps.map((v, i) => `<button class="nm-opt" onclick="odoDlgSuggest(${i})">+${formatNumberWithSpace(v)}</button>`).join('')}</div></div>`;
+                <div class="nm-opts" style="grid-template-columns:repeat(${cols},1fr);">${steps.map((v, i) => `<button class="nm-opt" onclick="odoDlgSuggest(${i})">+${formatNumberWithSpace(v)}</button>`).join('')}</div><div class="nm-sep" style="margin:10px 0 0;"></div></div>`;
         }
                 function odoDlgSuggest(i) {
             if (tp) { tp.mode = 'preset'; tp.presetIdx = i; tp.next = ''; }
@@ -3036,12 +3068,12 @@
             const m = getItemMeta(tp.mod, tp.key);
             if (!m || !m.spec) return;
             document.getElementById('spec-pop-box').innerHTML =
-                `<div class="nm-head"><span class="nm-title">${m.spec.label}</span></div>` +
+                `<div class="nm-head"><span class="nm-title">اختيار</span></div>` +
                 `<div class="nm-body"><div class="nm-list">` +
                 m.spec.presets.map((v, i) => `<button class="nm-optbig ${tp.spec === v ? 'on' : ''}" style="unicode-bidi:plaintext;" onclick="tpSpecChoose(${i})">${escapeHtml(v)}</button>`).join('') +
                 `<button class="nm-optbig ${tp.specUnknown ? 'on' : ''}" onclick="tpSpecUnknown()">غير معروف</button>` +
                 `</div></div><div class="nm-actions"><button class="nm-x" onclick="document.getElementById('spec-pop-overlay').style.display='none'">إلغاء</button></div>`;
-            nmTitle('spec-pt', m.label, 'اختيار ' + m.spec.label);
+            nmTitle('spec-pt', '', 'اختر ' + m.spec.label);
             document.getElementById('spec-pop-overlay').style.display = 'flex';
         }
                 function tpSpecChoose(i) {
@@ -3142,7 +3174,7 @@
     layer.classList.remove('under'); subcard.innerHTML='';
   }
   function nmSheet(title){
-    (function(){ var t=document.getElementById('bu-pt'); t.children[0].textContent='تحديث المجموعة'; t.children[1].textContent=title||''; })();
+    (function(){ var t=document.getElementById('bu-pt'); t.children[0].textContent=''; t.children[1].textContent=title||''; })();
     subcard.innerHTML='<div class="nm-head"></div><div class="nm-body"></div><div class="nm-actions"></div>';
     return { head:subcard.children[0], body:subcard.children[1], acts:subcard.children[2] };
   }
@@ -3177,8 +3209,7 @@
     var s=nmSheet(o.title);
     var chips=document.createElement('div'); chips.className='nm-opts';
     function sync(){
-      s.head.innerHTML = cur ? '<span class="nm-val"><span>'+fmt(cur)+'</span><span class="nm-unit">'+unitTxt+'</span></span>' : '<span class="nm-title"></span>';
-      if(!cur) s.head.firstChild.textContent=o.title;
+      s.head.innerHTML = '<span class="nm-val">'+(cur?'<span>'+fmt(cur)+'</span>':'')+'<span class="nm-unit">'+unitTxt+'</span></span>';
       var v=cur?parseInt(cur,10):0;
       Array.prototype.forEach.call(chips.children,function(m){ m.classList.toggle('on',v>0&&parseInt(m.dataset.v,10)===v); });
     }
@@ -3197,6 +3228,7 @@
       s.body.classList.add('nm-body-opts');
       var top=document.createElement('div'); top.style.cssText='width:100%;max-width:320px;';
       top.appendChild(chips);
+      var sep=document.createElement('div'); sep.className='nm-sep'; sep.style.margin='10px 0 0'; top.appendChild(sep);
       var sp=document.createElement('div'); sp.style.height='20px';
       s.body.appendChild(top); s.body.appendChild(pad); s.body.appendChild(sp);
     } else {
@@ -3210,7 +3242,7 @@
     var t=todayStr(), tpp=t.split('-').map(Number);
     var initStr = initial || t;
     var p=initStr.split('-').map(Number), y=p[0], m=p[1]-1, picked=initStr;
-    var s=nmSheet(title||'اختيار التاريخ'); s.body.classList.add('nm-top');
+    var s=nmSheet(title||'اختر التاريخ'); s.body.classList.add('nm-top');
     var cal=document.createElement('div'); cal.className='nm-cal'; s.body.appendChild(cal);
     function atMax(){ return !allowFuture && (y>tpp[0] || (y===tpp[0] && m>=tpp[1]-1)); }
     function draw(){
@@ -3246,7 +3278,7 @@
 
   function openSelect(o){
     var s=nmSheet(o.title);
-    s.head.innerHTML='<span class="nm-title"></span>'; s.head.firstChild.textContent=o.title;
+    s.head.innerHTML='<span class="nm-title">اختيار</span>';
     var list=document.createElement('div'); list.className='nm-list';
     o.presets.forEach(function(p){
       var b=document.createElement('button'); b.type='button'; b.className='nm-optbig'+(p===(o.init||'')?' on':''); b.textContent=p;
@@ -3301,7 +3333,7 @@
     stage.appendChild(el('<div class="sec-title">تاريخ التغيير</div>'));
     var dBtn=el('<button type="button" class="fieldbtn"></button>');
     dBtn.textContent=dateReadable(date);
-    dBtn.addEventListener('click',function(){ openCalendar(date,function(v){ date=v; dBtn.textContent=dateReadable(date); }, false, 'تاريخ التغيير'); });
+    dBtn.addEventListener('click',function(){ openCalendar(date,function(v){ date=v; dBtn.textContent=dateReadable(date); }, false, 'اختر تاريخ التغيير'); });
     stage.appendChild(dBtn);
 
     stage.appendChild(el('<div class="sec-title">العداد عند التغيير</div>'));
@@ -3309,7 +3341,7 @@
     function odoTxt(){ oBtn.textContent=fmt(odo)+' كم'; }
     odoTxt();
     oBtn.addEventListener('click',function(){
-      openKeypad({title:'العداد عند التغيير', init:odo, max:6, unit:'كم', onApply:function(v){ if(v>0){ odo=v; odoTouched=true; odoTxt(); } }});
+      openKeypad({title:'اكتب العداد عند التغيير', init:odo, max:6, unit:'كم', onApply:function(v){ if(v>0){ odo=v; odoTouched=true; odoTxt(); } }});
     });
     stage.appendChild(oBtn);
   }
@@ -3329,7 +3361,7 @@
         paint();
         b.addEventListener('click',function(){
           var cur=records.docs[k]&&records.docs[k].expiryDate;
-          openCalendar(dates[k]||(cur&&cur>todayStr()?cur:todayStr()), function(v){ dates[k]=v; paint(); }, true, 'تاريخ انتهاء الصلاحية');
+          openCalendar(dates[k]||(cur&&cur>todayStr()?cur:todayStr()), function(v){ dates[k]=v; paint(); }, true, 'اختر تاريخ انتهاء الصلاحية');
         });
         r.appendChild(b); rows.appendChild(r);
       });
@@ -3346,7 +3378,7 @@
       b.addEventListener('click',function(){
         var same=0;
         if(!t && mod==='oil' && k!=='engineOilNextOdo' && item('engineOilNextOdo') && isOn('engineOilNextOdo')) same=dur['engineOilNextOdo']||0;
-        openKeypad({title:'مدة صلاحية: '+it.label, init:dur[k]||'', max:t?3:6, presets:it.presets, unit:u, same:same,
+        openKeypad({title:'اكتب مدة صلاحية '+it.label, init:dur[k]||'', max:t?3:6, presets:it.presets, unit:u, same:same,
                     onApply:function(v){ if(v>0) dur[k]=v; else delete dur[k]; paint(); }});
       });
       r.appendChild(b); rows.appendChild(r);
@@ -3365,7 +3397,7 @@
         function paint(){ b.textContent=spec[k]||'اختر النوع'; b.classList.toggle('empty',!spec[k]); }
         paint();
         b.addEventListener('click',function(){
-          openSelect({title:sp.label, init:spec[k]||'', presets:sp.presets, onApply:function(v){ spec[k]=v; paint(); }});
+          openSelect({title:'اختر '+sp.label, init:spec[k]||'', presets:sp.presets, onApply:function(v){ spec[k]=v; paint(); }});
         });
         r.appendChild(b); srows.appendChild(r);
       });
@@ -3381,7 +3413,7 @@
     function amtTxt(){ aBtn.textContent = amount ? fmt(amount)+' دج' : 'أدخل المبلغ الكلي'; aBtn.classList.toggle('empty',!amount); }
     amtTxt();
     aBtn.addEventListener('click',function(){
-      openKeypad({title:'المبلغ الكلي', init:amount, max:7, unit:'دج', onApply:function(v){ amount=v?String(v):''; amtTxt(); }});
+      openKeypad({title:'اكتب المبلغ الكلي', init:amount, max:7, unit:'دج', onApply:function(v){ amount=v?String(v):''; amtTxt(); }});
     });
     stage.appendChild(aBtn);
   }

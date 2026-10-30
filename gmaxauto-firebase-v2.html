@@ -1871,6 +1871,7 @@
 
         function odoDlgCancel() {
             closeOdoDialog();
+            if (tp && tp.ext && tp.kind === 'km') tp = null;
             if (onboardingStep === 'odo') askInitialOdo();
         }
         function closeOdoDialog() {
@@ -1915,6 +1916,7 @@
             let ttl;
             if (d.view === 'replace') ttl = 'أكّد استبدال العداد السابق';
             else if (d.view === 'jump') ttl = 'تأكّد من صحة العداد';
+            else if (d.origin === 'popupNext' && tp && tp.ext) ttl = 'اكتب الموعد القادم';
             else if (d.origin === 'popupNext') { const mm = tp ? getItemMeta(tp.mod, tp.key) : null; ttl = mm ? 'اكتب عداد التغيير القادم لـ' + mm.label : 'اكتب العداد عند التغيير القادم'; }
             else ttl = d.field === 'odo' ? 'اكتب عداد السيارة الحالي' : 'اكتب معدل السير الشهري';
             nmTitle('odo-pt', '', ttl);
@@ -1997,6 +1999,7 @@
                 if (v <= cur) { d.msg = 'يجب أن يكون أكبر من العداد الحالي (' + formatNumberWithSpace(cur) + ' كم)'; renderOdoDialog(); return; }
                 if (tp) { tp.mode = null; tp.presetIdx = null; tp.next = String(v); }
                 closeOdoDialog();
+                if (tp && tp.ext) { tpConfirm(); return; }
                 if (tp) tpRender();
                 return;
             }
@@ -2514,7 +2517,7 @@
             showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">البطاقات الثلاث</b><br>لكل بطاقة اسمها وضوء يبيّن حالتها: أخضر بخير، برتقالي اقترب موعد شيء فيها، أحمر حان موعده. اضغط على البطاقة لترى مؤشراتها وتحدّثها.<br><br><b style="color:#b8860b;">المفتاح</b><br>عند فتح أي مؤشر تجد في أعلى صفحته مفتاحًا لتفعيله أو تعطيله. المؤشر المعطَّل ضوؤه أبيض ولا يظهر له رقم.<br><br><b style="color:#b8860b;">الوقود والمصاريف</b><br>بطاقة «الوقود» تفتح مباشرة نافذة تسجيل تعبئة وقود، وبطاقة «المصاريف» تفتح صفحة المصاريف والإحصائيات.<br><br><b style="color:#b8860b;">القائمة</b><br>الخطوط الثلاثة في أعلى يمين كل صفحة تفتح قائمة فيها: شرح الصفحة، وشرح التطبيق، والنسخة الاحتياطية، والملاحظات، وإعادة ضبط المصنع.');
         }
         function showGroupPageHelp() {
-            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على أي مؤشر (على اسمه أو رقمه أو ضوئه) لتفتح نافذته: في الأعلى كل معلوماته، وتحتها زر تمديد الصلاحية بعد فحص السيارة، ثم خيار إظهار المتبقي في الجدول أو إخفائه، ثم خيار التنبيه بالضوء. أما تغيير القطع وتجديد الوثائق فيكون من زر «تحديث» الأصفر فقط.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>كل مؤشرات المجموعة ظاهرة دائمًا. المعطَّل ضوؤه باهت وبلا رقم، واضغط عليه لتفعّله.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الأربعة في أعلى الصفحة تنقلك مباشرة بين الوثائق والزيت والصيانة والإضافية. وزر «العودة إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
+            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على أي مؤشر (على اسمه أو رقمه أو ضوئه) لتفتح نافذته: في الأعلى كل معلوماته، وتحتها زر تمديد الصلاحية بعد فحص السيارة، ثم خيار إظهار المتبقي في الجدول أو إخفائه، ثم خيار التنبيه بالضوء. تُحفظ تغييرات الخيارين بزر «تأكيد». أما تغيير القطع وتجديد الوثائق فيكون من زر «تحديث» الأصفر فقط.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>كل مؤشرات المجموعة ظاهرة دائمًا. المعطَّل ضوؤه باهت وبلا رقم، واضغط عليه لتفعّله.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الأربعة في أعلى الصفحة تنقلك مباشرة بين الوثائق والزيت والصيانة والإضافية. وزر «العودة إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
         }
         function showDateInfo() {
             showInfo('تاريخ اليوم', 'هذا التاريخ مأخوذ من ساعة هاتفك ولا يمكن تعديله من هنا.<br>إن وجدته غير صحيح، فصحّحه من إعدادات الهاتف (التاريخ والوقت)، ثم عُد إلى التطبيق.');
@@ -2944,11 +2947,13 @@
             return renderGroupPage(mod);
         }
 
+        let itemDraft = null;
         function closeSpecPop() { document.getElementById('spec-pop-overlay').style.display = 'none'; }
         function itemRefresh() { updateGlobalLight(); if (document.getElementById('main-app-container').style.display === 'block') renderForm(currentModule); }
-        function openItemInfo(mod, key) {
+        function openItemInfo(mod, key, keep) {
             const m = getItemMeta(mod, key), obj = records[mod] && records[mod][key];
             if (!m || !obj) return;
+            if (!keep) itemDraft = { hideRem: !!obj.hideRem, lightOff: !!obj.lightOff };
             const on = obj.active !== false, odo = records.car.odometer.currentEstimatedOdo;
             const row = (l, v) => `<div class="nm-row"><span class="nm-row-label">${l}</span><span class="nm-row-label"><b>${v}</b></span></div>`;
             const km = n => `<span class="num-ltr">${formatNumberWithSpace(n)}</span> كم`;
@@ -2968,12 +2973,12 @@
                 const sw = (isOn, fn) => `<span class="tp-sw ${isOn ? 'on' : ''}" onclick="${fn}('${mod}','${key}')"></span>`;
                 rows += `<div class="nm-sec-sep"></div>
                     <div class="nm-row"><span class="nm-row-label">تمديد الصلاحية بعد الفحص</span><button class="nm-edit" onclick="openItemExtend('${mod}','${key}')">تمديد</button></div>
-                    <div class="nm-row"><span class="nm-row-label">إظهار المتبقي في الجدول</span>${sw(!obj.hideRem, 'toggleItemHide')}</div>
-                    <div class="nm-row"><span class="nm-row-label">التنبيه بالضوء</span>${sw(!obj.lightOff, 'toggleItemLight')}</div>`;
+                    <div class="nm-row"><span class="nm-row-label">إظهار المتبقي في الجدول</span>${sw(!itemDraft.hideRem, 'toggleItemHide')}</div>
+                    <div class="nm-row"><span class="nm-row-label">التنبيه بالضوء</span>${sw(!itemDraft.lightOff, 'toggleItemLight')}</div>`;
             }
             nmTitle('spec-pt', '', 'معلومات ' + m.label);
             document.getElementById('spec-pop-box').innerHTML = `<div class="nm-head"><span class="nm-title">معلومات</span></div><div class="nm-body nm-top">${rows}</div>
-                <div class="nm-actions">${on ? `<button class="nm-stop" onclick="itemStopTracking('${mod}','${key}')">إيقاف المتابعة</button>` : ''}<button class="nm-x" onclick="closeSpecPop()">إغلاق</button></div>`;
+                <div class="nm-actions">${on ? `<button class="nm-ok" onclick="itemConfirm('${mod}','${key}')">تأكيد</button>` : ''}<button class="nm-x" onclick="closeSpecPop()">${on ? 'إلغاء' : 'إغلاق'}</button></div>`;
             document.getElementById('spec-pop-overlay').style.display = 'flex';
         }
         function itemStopTracking(mod, key) {
@@ -2987,17 +2992,16 @@
             closeSpecPop();
             openTimePop(mod, key, true);
         }
-        function toggleItemLight(mod, key) {
+        function toggleItemLight(mod, key) { if (!itemDraft) return; itemDraft.lightOff = !itemDraft.lightOff; openItemInfo(mod, key, true); }
+        function toggleItemHide(mod, key) { if (!itemDraft) return; itemDraft.hideRem = !itemDraft.hideRem; openItemInfo(mod, key, true); }
+        function itemConfirm(mod, key) {
             const obj = records[mod] && records[mod][key];
-            if (!obj || obj.active === false) return;
-            if (obj.lightOff) delete obj.lightOff; else obj.lightOff = true;
-            saveAppData(); itemRefresh(); openItemInfo(mod, key);
-        }
-        function toggleItemHide(mod, key) {
-            const obj = records[mod] && records[mod][key];
-            if (!obj || obj.active === false) return;
-            if (obj.hideRem) delete obj.hideRem; else obj.hideRem = true;
-            saveAppData(); itemRefresh(); openItemInfo(mod, key);
+            if (obj && itemDraft) {
+                if (itemDraft.lightOff) obj.lightOff = true; else delete obj.lightOff;
+                if (itemDraft.hideRem) obj.hideRem = true; else delete obj.hideRem;
+                saveAppData();
+            }
+            closeSpecPop(); itemRefresh();
         }
         function openDetailModalFromAll(modKey, key) {
             openTimePop(modKey, key);
@@ -3017,6 +3021,7 @@
             tp = { ext: !!ext, mod: mod, key: key, kind: isTimeItem(mod, key) ? 'time' : 'km', next: '', mode: null, presetIdx: null, keypad: false, wasActive: on, enabled: on, date: date,
                    calYear: parseInt(base.slice(0, 4)), calMonth: parseInt(base.slice(5, 7)) - 1,
                    spec: obj.spec || '', specPrev: obj.spec || '', specUnknown: false, warn: false, warnOk: false };
+            if (tp.ext && tp.kind === 'km') { openOdoDialog('popupNext'); return; }
             document.getElementById('time-pop-overlay').style.display = 'flex';
             tpRender();
         }
@@ -3068,7 +3073,7 @@
             const m = getItemMeta(tp.mod, tp.key);
             document.getElementById('tp-sw').style.display = tp.ext ? 'none' : '';
             document.getElementById('tp-title').innerHTML = tp.warn ? '' : (!tp.enabled ? 'معطَّل' : (tp.kind === 'km' ? (kpNext() ? 'الباقي ' + formatNumberWithSpace(kpNext() - records.car.odometer.currentEstimatedOdo) + ' كم' : 'اكتب العداد القادم') : (tp.date ? convertDateToReadableArabic(tp.date) : 'اختر التاريخ')));
-            nmTitle('tp-pt', '', tp.warn ? 'تأكّد من تغيير المواصفة' : (!tp.enabled ? 'فعّل المؤشر لمتابعته' : (tp.kind === 'km' ? 'مدّد موعد تغيير ' + m.label : 'اختر تاريخ انتهاء ' + m.label)));
+            nmTitle('tp-pt', '', tp.warn ? 'تأكّد من تغيير المواصفة' : (!tp.enabled ? 'فعّل المؤشر لمتابعته' : (tp.kind === 'km' ? 'مدّد موعد تغيير ' + m.label : (tp.ext ? 'اختر الموعد القادم' : 'اختر تاريخ انتهاء ' + m.label))));
             document.getElementById('tp-sw').classList.toggle('on', tp.enabled);
             document.getElementById('tp-err').innerText = '';
             const bodyEl = document.getElementById('tp-body');

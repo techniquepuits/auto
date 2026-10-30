@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>اختبار شعار رونو</title>
+<style>
+body {
+  background: #173a5e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+img {
+  width: 180px;
+  height: 180px;
+  background: white;
+  padding: 20px;
+  object-fit: contain;
+}
+</style>
+</head>
+<body>
+
+<img src="./renault.svg"
+     alt="Renault"
+     onerror="document.getElementById('error').innerText='لم يتم العثور على ملف renault.svg'">
+
+<p id="error" style="color:white;position:absolute;bottom:20px"></p>
+
+</body>
+</html>

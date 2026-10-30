@@ -1083,7 +1083,9 @@
 .nm-up::before, .nm-up::after { display: none; }
 .nm-info { margin: auto 0; text-align: center; font-size: 11.5px; line-height: 1.9; color: rgba(255,255,255,0.55); padding-top: 10px; }
 .nm-tankbox { width: 100%; max-width: 320px; }
-.nm-tank { display: flex; flex-direction: column; gap: 4px; }
+.nm-tank { display: flex; flex-direction: row; direction: ltr; gap: 0; width: 100%; border: 1px solid #b8860b; border-radius: 8px; overflow: hidden; }
+.nm-tank .nm-tankbtn { flex: 1; border-radius: 0; border: 0; border-right: 1px solid #444; height: 38px; }
+.nm-tank .nm-tankbtn:last-child { border-right: 0; }
 .nm-tankbtn { height: 28px; background: #252525; border: 1px solid #444; border-radius: 8px; color: #ffda75; font-weight: bold; font-size: 13px; font-family: inherit; cursor: pointer; direction: ltr; }
 .nm-tankbtn:active { background: #444; }
 .nm-tankbtn.on { background: #b8860b; color: #000; border-color: #b8860b; }
@@ -1246,8 +1248,8 @@
                 <div class="nm-sep" id="fuel-sep"></div>
                 <div class="nm-pad" id="fuel-pad"></div>
                 <input type="text" id="exp-note" class="nm-input" maxlength="40" placeholder="ملاحظة (اختيارية): مثل بطارية أو غرامة سرعة">
-                <div class="nm-date-row"><span>التاريخ</span><input type="date" id="fuel-date" class="nm-input" style="width:auto;"></div>
-                <div class="nm-tankbox" id="fuel-tank-box" style="display:none;"><div class="nm-hint" style="margin:6px 0 4px;">حالة الخزان بعد التعبئة</div><div class="nm-tank" id="fuel-tank"></div></div>
+                <input type="date" id="fuel-date" style="display:none;">
+                <div class="nm-tankbox" id="fuel-tank-box" style="display:none;"><div class="nm-sep" style="margin:10px 0;"></div><div class="nm-hint" style="margin:6px 0 4px;">حالة الخزان بعد التعبئة</div><div class="nm-tank" id="fuel-tank"></div></div>
             </div>
             <div id="fuel-err" class="nm-err"></div>
             <div class="nm-actions" id="exp-actions"></div>
@@ -1692,7 +1694,7 @@
                     if (!o || typeof o !== 'object') return;
                     if (item.type === 'time') {
                         if (!isValidDateStr(o.expiryDate)) return;   // تاريخ غير صالح: يبقى المؤشر معطّلاً بدل أن يظهر منتهيًا
-                        rec[mod][item.key] = { expiryDate: o.expiryDate, active: o.active !== false };
+                        rec[mod][item.key] = { expiryDate: o.expiryDate, lastDate: isValidDateStr(o.lastDate) ? o.lastDate : '', active: o.active !== false };
                         if (o.lightOff === true) rec[mod][item.key].lightOff = true;
                         if (o.hideRem === true) rec[mod][item.key].hideRem = true;
                         if (item.spec && typeof o.spec === 'string' && o.spec.trim()) rec[mod][item.key].spec = o.spec.trim().slice(0, 40);
@@ -2630,7 +2632,8 @@
         }
         function fuelTankRender() {
             const el = document.getElementById('fuel-tank'); if (!el) return;
-            el.innerHTML = ['F', '3/4', '1/2', '1/4', 'E'].map(v => `<button class="nm-tankbtn ${fuelTank === v ? 'on' : ''}" onclick="fuelSetTank('${v}')">${v}</button>`).join('');
+            const L = ['1/4', '1/2', '3/4', 'F'], idx = L.indexOf(fuelTank);
+            el.innerHTML = L.map((v, i) => `<button class="nm-tankbtn ${i <= idx ? 'on' : ''}" onclick="fuelSetTank('${v}')">${v}</button>`).join('');
         }
         function fuelSetTank(v) { fuelTank = v; fuelTankRender(); document.getElementById('fuel-err').innerText = ''; fuelRefreshAmount(); }
         function expShowStep1() {
@@ -2922,8 +2925,7 @@
                 if (on) {
                     st = obj.lightOff ? 'none' : getIndicatorStatus(mod, item.key, records[mod]);
                     const rem = isT ? calculateRemainingDays(obj.expiryDate) : obj.max - odo;
-                    if (mod === 'docs') cellRem = `<span class="num-ltr">${formatNumberWithSpace(rem)}</span> يوم`;
-                    else if (isT) { const el = obj.lastDate ? Math.max(0, Math.round((new Date() - new Date(obj.lastDate)) / 86400000)) : null; cellRem = el === null ? `<span class="num-ltr">${formatNumberWithSpace(rem)}</span> يوم` : `<span class="num-ltr">${formatNumberWithSpace(el)}</span> يوم`; }
+                    if (isT) { const el = obj.lastDate ? Math.max(0, Math.round((new Date() - new Date(obj.lastDate)) / 86400000)) : null; cellRem = el === null ? '—' : `<span class="num-ltr">${formatNumberWithSpace(el)}</span> يوم`; }
                     else if (obj.lastOdo > 0) cellRem = `<span class="num-ltr">${formatNumberWithSpace(Math.max(0, odo - obj.lastOdo))}</span> كم`;
                 }
                 return `<tr class="${on ? '' : 'row-off'}" onclick="openItemInfo('${mod}', '${item.key}')">
@@ -2973,6 +2975,7 @@
             else if (m.type === 'time') {
                 if (obj.lastDate) rows += row('آخر تحديث', convertDateToReadableArabic(obj.lastDate));
                 rows += row('تنتهي الصلاحية في', convertDateToReadableArabic(obj.expiryDate));
+                if (obj.lastDate) rows += row('الأيام المنقضية', `<span class="num-ltr">${formatNumberWithSpace(Math.max(0, Math.round((new Date() - new Date(obj.lastDate)) / 86400000)))}</span> يوم`);
                 rows += row('الباقي', `<span class="num-ltr">${formatNumberWithSpace(calculateRemainingDays(obj.expiryDate))}</span> يوم`);
             } else {
                 if (obj.lastDate) rows += row('آخر تغيير', convertDateToReadableArabic(obj.lastDate));
@@ -3183,7 +3186,7 @@
                 }
                 if (!tp.date) { document.getElementById('tp-err').innerText = 'اختر تاريخ انتهاء الصلاحية من التقويم.'; return; }
                 if (m.spec && !tp.warnOk && specNorm(tp.spec) && specNorm(tp.specPrev) && specNorm(tp.spec) !== specNorm(tp.specPrev)) { tp.warn = true; tpRender(); return; }
-                obj.expiryDate = tp.date;
+                obj.expiryDate = tp.date; obj.lastDate = getTodayDateString();
                 obj.active = true;
                 if (m.spec) { const v = (tp.spec || '').trim().slice(0, 40); if (v) obj.spec = v; else delete obj.spec; }
                 saveAppData();
@@ -3586,7 +3589,7 @@
     selected.forEach(function(k){
       var it=item(k), prev=records[own(k)][k]||{}, obj;
       if(isTime(it)){
-        obj={ expiryDate: fixedDate(it) ? dates[k] : addMonthsStr(date,dur[k]), active:true };
+        obj={ expiryDate: fixedDate(it) ? dates[k] : addMonthsStr(date,dur[k]), lastDate: date, active:true };
       } else {
         obj={ max: odo+dur[k], lastDate: date, lastOdo: odo, active:true };
       }

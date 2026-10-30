@@ -2922,12 +2922,14 @@
                 if (on) {
                     st = obj.lightOff ? 'none' : getIndicatorStatus(mod, item.key, records[mod]);
                     const rem = isT ? calculateRemainingDays(obj.expiryDate) : obj.max - odo;
-                    cellRem = `<span class="num-ltr">${formatNumberWithSpace(rem)}</span>${isT ? ' يوم' : ' كم'}`;
+                    if (mod === 'docs') cellRem = `<span class="num-ltr">${formatNumberWithSpace(rem)}</span> يوم`;
+                    else if (isT) { const el = obj.lastDate ? Math.max(0, Math.round((new Date() - new Date(obj.lastDate)) / 86400000)) : null; cellRem = el === null ? `<span class="num-ltr">${formatNumberWithSpace(rem)}</span> يوم` : `<span class="num-ltr">${formatNumberWithSpace(el)}</span> يوم`; }
+                    else if (obj.lastOdo > 0) cellRem = `<span class="num-ltr">${formatNumberWithSpace(Math.max(0, odo - obj.lastOdo))}</span> كم`;
                 }
                 return `<tr class="${on ? '' : 'row-off'}" onclick="openItemInfo('${mod}', '${item.key}')">
                     <td class="col-indicator"><span class="chev"></span><span>${item.label}</span></td>
                     <td class="col-remaining">${(obj && obj.hideRem) ? '' : cellRem}</td>
-                    <td class="col-toggle"><div class="status-light status-${st}"></div></td>
+                    <td class="col-toggle" onclick="event.stopPropagation(); openItemLight('${mod}', '${item.key}')"><div class="status-light status-${st}"></div></td>
                 </tr>`;
             }).join('');
             const updBtn = `<div class="grp-update"><button class="grp-update-btn" onclick="openBatchUpdate('${mod}')">تحديث</button><button class="grp-back-btn" onclick="navigateAlertsPage()">العودة إلى الرئيسية</button></div>`;
@@ -2948,57 +2950,56 @@
         }
 
         let itemDraft = null;
-        function closeSpecPop() { document.getElementById('spec-pop-overlay').style.display = 'none'; }
+        function miniEl() {
+            let o = document.getElementById('mini-pop-overlay');
+            if (!o) { o = document.createElement('div'); o.id = 'mini-pop-overlay'; o.style.cssText = 'display:none;position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;padding:16px;'; o.innerHTML = '<div id="mini-pop-box" style="width:100%;max-width:320px;background:#1e1e1e;border:1px solid rgba(255,255,255,0.3);border-radius:14px;padding:14px;box-shadow:0 6px 22px rgba(0,0,0,0.8);color:#fff;direction:rtl;max-height:80vh;overflow-y:auto;"></div>'; document.body.appendChild(o); }
+            return o;
+        }
+        function closeSpecPop() { miniEl().style.display = 'none'; }
         function itemRefresh() { updateGlobalLight(); if (document.getElementById('main-app-container').style.display === 'block') renderForm(currentModule); }
-        function openItemInfo(mod, key, keep) {
+        function openMini(title, rows, actions) {
+            const o = miniEl();
+            document.getElementById('mini-pop-box').innerHTML = `<div class="nm-head" style="margin:-6px -6px 10px -6px;min-height:44px;padding:10px;"><span class="nm-title">${title}</span></div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">${rows}</div><div class="nm-actions">${actions}</div>`;
+            o.style.display = 'flex';
+        }
+        function openItemInfo(mod, key) {
             const m = getItemMeta(mod, key), obj = records[mod] && records[mod][key];
             if (!m || !obj) return;
-            if (!keep) itemDraft = { hideRem: !!obj.hideRem, lightOff: !!obj.lightOff };
             const on = obj.active !== false, odo = records.car.odometer.currentEstimatedOdo;
             const row = (l, v) => `<div class="nm-row"><span class="nm-row-label">${l}</span><span class="nm-row-label"><b>${v}</b></span></div>`;
             const km = n => `<span class="num-ltr">${formatNumberWithSpace(n)}</span> كم`;
             let rows = '';
             if (!on) rows = '<div class="nm-msg-text">هذا المؤشر غير مفعَّل.<br>فعّله من زر «تحديث» أسفل الجدول.</div>';
-            else {
-                if (m.type === 'time') {
-                    rows += row('تنتهي الصلاحية في', convertDateToReadableArabic(obj.expiryDate));
-                    rows += row('الباقي', `<span class="num-ltr">${formatNumberWithSpace(calculateRemainingDays(obj.expiryDate))}</span> يوم`);
-                } else {
-                    if (obj.lastDate) rows += row('آخر تغيير', convertDateToReadableArabic(obj.lastDate));
-                    if (obj.lastOdo > 0) { rows += row('العداد عند آخر تغيير', km(obj.lastOdo)); rows += row('مدة الصلاحية', km(Math.max(0, obj.max - obj.lastOdo))); }
-                    rows += row('الموعد القادم', 'عند ' + km(obj.max));
-                    rows += row('الباقي', km(obj.max - odo));
-                }
-                if (m.spec && obj.spec) rows += row(m.spec.label, escapeHtml(obj.spec));
-                const sw = (isOn, fn) => `<span class="tp-sw ${isOn ? 'on' : ''}" onclick="${fn}('${mod}','${key}')"></span>`;
-                rows += `<div class="nm-sec-sep"></div>
-                    <div class="nm-row"><span class="nm-row-label">تمديد الصلاحية بعد الفحص</span><button class="nm-edit" onclick="openItemExtend('${mod}','${key}')">تمديد</button></div>
-                    <div class="nm-row"><span class="nm-row-label">إظهار المتبقي في الجدول</span>${sw(!itemDraft.hideRem, 'toggleItemHide')}</div>
-                    <div class="nm-row"><span class="nm-row-label">التنبيه بالضوء</span>${sw(!itemDraft.lightOff, 'toggleItemLight')}</div>`;
+            else if (m.type === 'time') {
+                if (obj.lastDate) rows += row('آخر تحديث', convertDateToReadableArabic(obj.lastDate));
+                rows += row('تنتهي الصلاحية في', convertDateToReadableArabic(obj.expiryDate));
+                rows += row('الباقي', `<span class="num-ltr">${formatNumberWithSpace(calculateRemainingDays(obj.expiryDate))}</span> يوم`);
+            } else {
+                if (obj.lastDate) rows += row('آخر تغيير', convertDateToReadableArabic(obj.lastDate));
+                if (obj.lastOdo > 0) { rows += row('العداد عند آخر تغيير', km(obj.lastOdo)); rows += row('المسافة المقطوعة', km(Math.max(0, odo - obj.lastOdo))); rows += row('مدة الصلاحية', km(Math.max(0, obj.max - obj.lastOdo))); }
+                rows += row('الموعد القادم', 'عند ' + km(obj.max));
+                rows += row('الباقي', km(obj.max - odo));
             }
-            nmTitle('spec-pt', '', 'معلومات ' + m.label);
-            document.getElementById('spec-pop-box').innerHTML = `<div class="nm-head"><span class="nm-title">معلومات</span></div><div class="nm-body nm-top">${rows}</div>
-                <div class="nm-actions">${on ? `<button class="nm-ok" onclick="itemConfirm('${mod}','${key}')">تأكيد</button>` : ''}<button class="nm-x" onclick="closeSpecPop()">${on ? 'إلغاء' : 'إغلاق'}</button></div>`;
-            document.getElementById('spec-pop-overlay').style.display = 'flex';
+            if (on && m.spec && obj.spec) rows += row(m.spec.label, escapeHtml(obj.spec));
+            openMini('معلومات ' + m.label, rows, `<button class="nm-x" onclick="closeSpecPop()">إغلاق</button>`);
         }
-        function itemStopTracking(mod, key) {
-            const obj = records[mod][key]; if (!obj) return;
-            obj.active = false; delete obj.lightOff; delete obj.hideRem;
-            saveAppData(); closeSpecPop(); itemRefresh();
+        function openItemLight(mod, key, keep) {
+            const m = getItemMeta(mod, key), obj = records[mod] && records[mod][key];
+            if (!m || !obj) return;
+            if (obj.active === false) { openItemInfo(mod, key); return; }
+            if (!keep) itemDraft = { hideRem: !!obj.hideRem, lightOff: !!obj.lightOff };
+            const sw = (isOn, fn) => `<span class="tp-sw ${isOn ? 'on' : ''}" onclick="${fn}('${mod}','${key}')"></span>`;
+            let rows = `<div class="nm-row"><span class="nm-row-label">إبقاء الضوء مفعَّلاً</span>${sw(!itemDraft.lightOff, 'toggleItemLight')}</div>`;
+            if (itemDraft.lightOff) rows += `<div class="nm-msg-text" style="font-size:12px;line-height:1.7;">لن يؤثر هذا المؤشر على الحالة العامة.</div><div class="nm-row"><span class="nm-row-label">إخفاء الرقم من الجدول</span>${sw(itemDraft.hideRem, 'toggleItemHide')}</div>`;
+            openMini('ضوء ' + m.label, rows, `<button class="nm-ok" onclick="itemConfirm('${mod}','${key}')">تأكيد</button><button class="nm-x" onclick="closeSpecPop()">إلغاء</button>`);
         }
-        function openItemExtend(mod, key) {
-            const obj = records[mod] && records[mod][key];
-            if (!obj || obj.active === false) { openItemInfo(mod, key); return; }
-            closeSpecPop();
-            openTimePop(mod, key, true);
-        }
-        function toggleItemLight(mod, key) { if (!itemDraft) return; itemDraft.lightOff = !itemDraft.lightOff; openItemInfo(mod, key, true); }
-        function toggleItemHide(mod, key) { if (!itemDraft) return; itemDraft.hideRem = !itemDraft.hideRem; openItemInfo(mod, key, true); }
+        function toggleItemLight(mod, key) { if (!itemDraft) return; itemDraft.lightOff = !itemDraft.lightOff; openItemLight(mod, key, true); }
+        function toggleItemHide(mod, key) { if (!itemDraft) return; itemDraft.hideRem = !itemDraft.hideRem; openItemLight(mod, key, true); }
         function itemConfirm(mod, key) {
             const obj = records[mod] && records[mod][key];
             if (obj && itemDraft) {
                 if (itemDraft.lightOff) obj.lightOff = true; else delete obj.lightOff;
-                if (itemDraft.hideRem) obj.hideRem = true; else delete obj.hideRem;
+                if (itemDraft.lightOff && itemDraft.hideRem) obj.hideRem = true; else delete obj.hideRem;
                 saveAppData();
             }
             closeSpecPop(); itemRefresh();
@@ -3216,7 +3217,7 @@
   function own(k){ return MODULE_ORDER.filter(function(mm){ return metadata[mm].some(function(i){ return i.key===k; }); })[0]; }
   var step=1, totalSteps=4, selected=[], dur={}, spec={}, dates={}, date='', odo=0, odoTouched=false, amount='';
 
-  function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+  function fmt(n){ return '\u2066'+String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ')+'\u2069'; }
   function pad2(n){ return String(n).padStart(2,'0'); }
   function todayStr(){ return getTodayDateString(); }
   function dateReadable(s){
@@ -3625,7 +3626,8 @@
 
         // v5: زر الرجوع في الهاتف يعمل كـ«إلغاء» لنافذة الكتابة المفتوحة بدل الخروج من التطبيق
         (function () {
-            const ids = ['welcome-odo-overlay', 'time-pop-overlay', 'spec-pop-overlay', 'fuel-overlay', 'bu-layer2'];
+            miniEl();
+            const ids = ['welcome-odo-overlay', 'time-pop-overlay', 'spec-pop-overlay', 'fuel-overlay', 'bu-layer2', 'mini-pop-overlay'];
             const els = ids.map(i => document.getElementById(i)).filter(Boolean);
             const open = {}; let pushed = 0, ignore = 0;
             const isOpen = el => el.id === 'bu-layer2' ? el.classList.contains('show') : el.style.display === 'flex';

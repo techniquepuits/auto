@@ -1101,6 +1101,9 @@
 .nm-stop { flex: 1; background: #3a2626; color: #f0a8a0; border: none; border-radius: 10px; height: 44px; font-size: 13px; font-weight: bold; font-family: inherit; cursor: pointer; }
 .indicators-table .col-indicator, .indicators-table .col-remaining, .indicators-table .col-toggle { cursor: pointer; }
 .indicators-table .col-toggle { padding-top: 6px; padding-bottom: 6px; }
+#spec-pop-box .nm-row { padding: 5px 4px; }
+#spec-pop-box .nm-row-label { font-size: 13px; }
+.nm-sec-sep { width: 100%; height: 1px; background: rgba(255,255,255,0.2); margin: 6px 0; flex: none; }
 </style>
 </head>
 <body>
@@ -1691,6 +1694,7 @@
                         if (!isValidDateStr(o.expiryDate)) return;   // تاريخ غير صالح: يبقى المؤشر معطّلاً بدل أن يظهر منتهيًا
                         rec[mod][item.key] = { expiryDate: o.expiryDate, active: o.active !== false };
                         if (o.lightOff === true) rec[mod][item.key].lightOff = true;
+                        if (o.hideRem === true) rec[mod][item.key].hideRem = true;
                         if (item.spec && typeof o.spec === 'string' && o.spec.trim()) rec[mod][item.key].spec = o.spec.trim().slice(0, 40);
                     } else {
                         if (!Number.isFinite(o.max) || o.max < 0 || o.max > 99999999) return;
@@ -1703,6 +1707,7 @@
                         };
                         if (item.spec && typeof o.spec === 'string' && o.spec.trim()) obj.spec = o.spec.trim().slice(0, 40);
                         if (o.lightOff === true) obj.lightOff = true;
+                        if (o.hideRem === true) obj.hideRem = true;
                         rec[mod][item.key] = obj;
                     }
                 });
@@ -2509,7 +2514,7 @@
             showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">البطاقات الثلاث</b><br>لكل بطاقة اسمها وضوء يبيّن حالتها: أخضر بخير، برتقالي اقترب موعد شيء فيها، أحمر حان موعده. اضغط على البطاقة لترى مؤشراتها وتحدّثها.<br><br><b style="color:#b8860b;">المفتاح</b><br>عند فتح أي مؤشر تجد في أعلى صفحته مفتاحًا لتفعيله أو تعطيله. المؤشر المعطَّل ضوؤه أبيض ولا يظهر له رقم.<br><br><b style="color:#b8860b;">الوقود والمصاريف</b><br>بطاقة «الوقود» تفتح مباشرة نافذة تسجيل تعبئة وقود، وبطاقة «المصاريف» تفتح صفحة المصاريف والإحصائيات.<br><br><b style="color:#b8860b;">القائمة</b><br>الخطوط الثلاثة في أعلى يمين كل صفحة تفتح قائمة فيها: شرح الصفحة، وشرح التطبيق، والنسخة الاحتياطية، والملاحظات، وإعادة ضبط المصنع.');
         }
         function showGroupPageHelp() {
-            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على <b>اسم المؤشر</b> لترى معلوماته (آخر تغيير، مدة الصلاحية، النوع). واضغط على <b>الرقم</b> لتمدّد الموعد بعد فحص السيارة، بالكيلومتر أو بالتاريخ. واضغط على <b>الضوء</b> لتعطيله إن أردت متابعة الرقم فقط، وأعد الضغط لتفعيله. أما تغيير القطع وتجديد الوثائق فيكون من زر «تحديث» الأصفر فقط.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>كل مؤشرات المجموعة ظاهرة دائمًا. المعطَّل ضوؤه باهت وبلا رقم، واضغط عليه لتفعّله.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الأربعة في أعلى الصفحة تنقلك مباشرة بين الوثائق والزيت والصيانة والإضافية. وزر «العودة إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
+            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على أي مؤشر (على اسمه أو رقمه أو ضوئه) لتفتح نافذته: في الأعلى كل معلوماته، وتحتها زر تمديد الصلاحية بعد فحص السيارة، ثم خيار إظهار المتبقي في الجدول أو إخفائه، ثم خيار التنبيه بالضوء. أما تغيير القطع وتجديد الوثائق فيكون من زر «تحديث» الأصفر فقط.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>كل مؤشرات المجموعة ظاهرة دائمًا. المعطَّل ضوؤه باهت وبلا رقم، واضغط عليه لتفعّله.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الأربعة في أعلى الصفحة تنقلك مباشرة بين الوثائق والزيت والصيانة والإضافية. وزر «العودة إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
         }
         function showDateInfo() {
             showInfo('تاريخ اليوم', 'هذا التاريخ مأخوذ من ساعة هاتفك ولا يمكن تعديله من هنا.<br>إن وجدته غير صحيح، فصحّحه من إعدادات الهاتف (التاريخ والوقت)، ثم عُد إلى التطبيق.');
@@ -2916,10 +2921,10 @@
                     const rem = isT ? calculateRemainingDays(obj.expiryDate) : obj.max - odo;
                     cellRem = `<span class="num-ltr">${formatNumberWithSpace(rem)}</span>${isT ? ' يوم' : ' كم'}`;
                 }
-                return `<tr class="${on ? '' : 'row-off'}">
-                    <td class="col-indicator" onclick="openItemInfo('${mod}', '${item.key}')"><span class="chev"></span><span>${item.label}</span></td>
-                    <td class="col-remaining" onclick="openItemExtend('${mod}', '${item.key}')">${cellRem}</td>
-                    <td class="col-toggle" onclick="toggleItemLight('${mod}', '${item.key}')"><div class="status-light status-${st}"></div></td>
+                return `<tr class="${on ? '' : 'row-off'}" onclick="openItemInfo('${mod}', '${item.key}')">
+                    <td class="col-indicator"><span class="chev"></span><span>${item.label}</span></td>
+                    <td class="col-remaining">${(obj && obj.hideRem) ? '' : cellRem}</td>
+                    <td class="col-toggle"><div class="status-light status-${st}"></div></td>
                 </tr>`;
             }).join('');
             const updBtn = `<div class="grp-update"><button class="grp-update-btn" onclick="openBatchUpdate('${mod}')">تحديث</button><button class="grp-back-btn" onclick="navigateAlertsPage()">العودة إلى الرئيسية</button></div>`;
@@ -2949,37 +2954,50 @@
             const km = n => `<span class="num-ltr">${formatNumberWithSpace(n)}</span> كم`;
             let rows = '';
             if (!on) rows = '<div class="nm-msg-text">هذا المؤشر غير مفعَّل.<br>فعّله من زر «تحديث» أسفل الجدول.</div>';
-            else if (m.type === 'time') {
-                rows += row('تنتهي الصلاحية في', convertDateToReadableArabic(obj.expiryDate));
-                rows += row('الباقي', `<span class="num-ltr">${formatNumberWithSpace(calculateRemainingDays(obj.expiryDate))}</span> يوم`);
-            } else {
-                if (obj.lastDate) rows += row('آخر تغيير', convertDateToReadableArabic(obj.lastDate));
-                if (obj.lastOdo > 0) { rows += row('العداد عند آخر تغيير', km(obj.lastOdo)); rows += row('مدة الصلاحية', km(Math.max(0, obj.max - obj.lastOdo))); }
-                rows += row('الموعد القادم', 'عند ' + km(obj.max));
-                rows += row('الباقي', km(obj.max - odo));
+            else {
+                if (m.type === 'time') {
+                    rows += row('تنتهي الصلاحية في', convertDateToReadableArabic(obj.expiryDate));
+                    rows += row('الباقي', `<span class="num-ltr">${formatNumberWithSpace(calculateRemainingDays(obj.expiryDate))}</span> يوم`);
+                } else {
+                    if (obj.lastDate) rows += row('آخر تغيير', convertDateToReadableArabic(obj.lastDate));
+                    if (obj.lastOdo > 0) { rows += row('العداد عند آخر تغيير', km(obj.lastOdo)); rows += row('مدة الصلاحية', km(Math.max(0, obj.max - obj.lastOdo))); }
+                    rows += row('الموعد القادم', 'عند ' + km(obj.max));
+                    rows += row('الباقي', km(obj.max - odo));
+                }
+                if (m.spec && obj.spec) rows += row(m.spec.label, escapeHtml(obj.spec));
+                const sw = (isOn, fn) => `<span class="tp-sw ${isOn ? 'on' : ''}" onclick="${fn}('${mod}','${key}')"></span>`;
+                rows += `<div class="nm-sec-sep"></div>
+                    <div class="nm-row"><span class="nm-row-label">تمديد الصلاحية بعد الفحص</span><button class="nm-edit" onclick="openItemExtend('${mod}','${key}')">تمديد</button></div>
+                    <div class="nm-row"><span class="nm-row-label">إظهار المتبقي في الجدول</span>${sw(!obj.hideRem, 'toggleItemHide')}</div>
+                    <div class="nm-row"><span class="nm-row-label">التنبيه بالضوء</span>${sw(!obj.lightOff, 'toggleItemLight')}</div>`;
             }
-            if (on && m.spec && obj.spec) rows += row(m.spec.label, escapeHtml(obj.spec));
-            if (on && obj.lightOff) rows += '<div class="nm-hint" style="margin-top:10px;">ضوء هذا المؤشر معطَّل، والأرقام تبقى تُتابَع.</div>';
             nmTitle('spec-pt', '', 'معلومات ' + m.label);
-            document.getElementById('spec-pop-box').innerHTML = `<div class="nm-head"><span class="nm-title">معلومات</span></div><div class="nm-body">${rows}</div>
+            document.getElementById('spec-pop-box').innerHTML = `<div class="nm-head"><span class="nm-title">معلومات</span></div><div class="nm-body nm-top">${rows}</div>
                 <div class="nm-actions">${on ? `<button class="nm-stop" onclick="itemStopTracking('${mod}','${key}')">إيقاف المتابعة</button>` : ''}<button class="nm-x" onclick="closeSpecPop()">إغلاق</button></div>`;
             document.getElementById('spec-pop-overlay').style.display = 'flex';
         }
         function itemStopTracking(mod, key) {
             const obj = records[mod][key]; if (!obj) return;
-            obj.active = false; delete obj.lightOff;
+            obj.active = false; delete obj.lightOff; delete obj.hideRem;
             saveAppData(); closeSpecPop(); itemRefresh();
         }
         function openItemExtend(mod, key) {
             const obj = records[mod] && records[mod][key];
             if (!obj || obj.active === false) { openItemInfo(mod, key); return; }
+            closeSpecPop();
             openTimePop(mod, key, true);
         }
         function toggleItemLight(mod, key) {
             const obj = records[mod] && records[mod][key];
             if (!obj || obj.active === false) return;
             if (obj.lightOff) delete obj.lightOff; else obj.lightOff = true;
-            saveAppData(); itemRefresh();
+            saveAppData(); itemRefresh(); openItemInfo(mod, key);
+        }
+        function toggleItemHide(mod, key) {
+            const obj = records[mod] && records[mod][key];
+            if (!obj || obj.active === false) return;
+            if (obj.hideRem) delete obj.hideRem; else obj.hideRem = true;
+            saveAppData(); itemRefresh(); openItemInfo(mod, key);
         }
         function openDetailModalFromAll(modKey, key) {
             openTimePop(modKey, key);

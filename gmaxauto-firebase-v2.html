@@ -1248,9 +1248,10 @@
                 <div class="nm-sep" id="fuel-sep"></div>
                 <div class="nm-pad" id="fuel-pad"></div>
                 <input type="text" id="exp-note" class="nm-input" maxlength="40" placeholder="ملاحظة (اختيارية)">
+                <div id="exp-last" style="display:none;width:100%;max-width:320px;"></div>
                 <div id="exp-nav" style="display:none;gap:8px;width:100%;max-width:320px;"><button class="nm-opt" style="flex:1;height:44px;font-size:13px;direction:rtl;" onclick="expenseGo('list')">قائمة المصاريف</button><button class="nm-opt" style="flex:1;height:44px;font-size:13px;direction:rtl;" onclick="expenseGo('stats')">الإحصائيات</button></div>
                 <input type="date" id="fuel-date" style="display:none;">
-                <div class="nm-tankbox" id="fuel-tank-box" style="display:none;"><div class="nm-sep" style="margin:10px 0;"></div><div class="nm-hint" style="margin:6px 0 4px;">حالة الخزان بعد التعبئة</div><div class="nm-tank" id="fuel-tank"></div></div>
+                <div class="nm-tankbox" id="fuel-tank-box" style="display:none;"><div class="nm-sep" style="margin:10px 0;"></div><div class="nm-hint" style="margin:6px 0 4px;">حالة الخزان بعد التعبئة</div><div class="nm-tank" id="fuel-tank"></div><div id="fuel-last"></div></div>
             </div>
             <div id="fuel-err" class="nm-err"></div>
             <div class="nm-actions" id="exp-actions"></div>
@@ -2621,6 +2622,7 @@
                 `<div style="padding-top: 6px;">${expSubHead('قائمة المصاريف')}
                 ${rows}
                 ${list.length ? `<button class="fuel-copy" onclick="fuelCopy()">نسخ القائمة (للواتساب)</button>` : ''}
+                <button class="exp-big-btn back" onclick="navigateAlertsPage()">الرجوع إلى الرئيسية</button>
                 <div class="fuel-status" id="fuel-status">${fuelMsg}</div></div>`;
             fuelMsg = '';
         }
@@ -2649,6 +2651,9 @@
         function expPick(k) {
             expCat = k;
             document.getElementById('exp-nav').style.display = 'none';
+            document.getElementById('exp-last').style.display = 'none';
+            const lf = fuelSorted(fuelLoad()).find(x => x.c === 'fuel');
+            document.getElementById('fuel-last').innerHTML = lf ? '<div class="nm-sep" style="margin:10px 0;"></div>' + lastInfoHtml('آخر تعبئة', lf, false) : '';
             document.getElementById('exp-note').style.margin = '';
             fuelAmountStr = '';
             fuelTank = '';
@@ -2675,14 +2680,26 @@
             expShowStep1();
             document.getElementById('fuel-overlay').style.display = 'flex';
         }
+        function lastInfoHtml(title, e, withCat) {
+            if (!e) return '';
+            let l = `<div>${title}</div><div>${convertDateToReadableArabic(e.d)}</div><div><span class="num-ltr">${formatNumberWithSpace(e.a)}</span> دج</div>`;
+            if (withCat) {
+                if (e.c === 'other') { if (e.n) l += `<div>${escapeHtml(e.n)}</div>`; }
+                else l += `<div>${expCatLabel(e.c)}</div>`;
+            }
+            return `<div class="nm-info" style="margin:0;padding-top:0;">${l}</div>`;
+        }
         function expenseOpen() {
             expCat = 'other'; fuelAmountStr = ''; fuelTank = '';
             nmTitle('fuel-pt', '', 'اكتب المبلغ مع الملاحظة (اختيارية)');
             document.getElementById('fuel-sep').style.display = 'none';
             document.getElementById('fuel-chips').style.display = 'none';
             document.getElementById('fuel-tank-box').style.display = 'none';
-            const n = document.getElementById('exp-note'); n.style.display = ''; n.value = ''; n.style.margin = '50px 0';
+            const n = document.getElementById('exp-note'); n.style.display = ''; n.value = ''; n.style.margin = '30px 0';
             document.getElementById('exp-nav').style.display = 'flex';
+            const le = fuelSorted(fuelLoad())[0], lx = document.getElementById('exp-last');
+            lx.innerHTML = '<div class="nm-sep" style="margin:0 0 10px;"></div>' + (le ? lastInfoHtml('آخر مصروف', le, true) + '<div class="nm-sep" style="margin:10px 0 14px;"></div>' : '<div style="height:4px"></div>');
+            lx.style.display = '';
             document.getElementById('fuel-date').value = getTodayDateString();
             document.getElementById('fuel-err').innerText = '';
             document.getElementById('fuel-pad').innerHTML = nmPadHtml('fuelKey', 'fuelDelKey', 'fuelClearKey');
@@ -2873,7 +2890,8 @@
             FORM_EL().innerHTML = `<div style="padding-top: 6px;">${expSubHead('الإحصائيات')}
                 <div class="st-hint">اختر ما تريد معرفته</div>
                 ${STAT_QS.map((q, i) => `<button class="st-q" onclick="openStory(${i})">${q.q}</button>`).join('')}
-                <div class="st-foot">الأرقام تقريبية، وتعتمد على مصاريفك وقراءات العداد التي سجّلتها.</div></div>`;
+                <div class="st-foot">الأرقام تقريبية، وتعتمد على مصاريفك وقراءات العداد التي سجّلتها.</div>
+                <button class="exp-big-btn back" onclick="navigateAlertsPage()">الرجوع إلى الرئيسية</button></div>`;
         }
         let storyIdx = 0;
         function openStory(i) { storyIdx = i; statYear = null; renderStory(); document.getElementById('story-overlay').style.display = 'flex'; }

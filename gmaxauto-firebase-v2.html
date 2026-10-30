@@ -1097,6 +1097,10 @@
 #bu-root .sum-name{font-weight:700;font-size:15px;color:var(--ink);margin-bottom:2px}
 #bu-root .sum-line{font-size:13.5px;color:var(--ink-muted);display:flex;justify-content:space-between;gap:8px;line-height:1.9}
 #bu-root .sum-line b{color:var(--ink);font-weight:600}
+
+.nm-stop { flex: 1; background: #3a2626; color: #f0a8a0; border: none; border-radius: 10px; height: 44px; font-size: 13px; font-weight: bold; font-family: inherit; cursor: pointer; }
+.indicators-table .col-indicator, .indicators-table .col-remaining, .indicators-table .col-toggle { cursor: pointer; }
+.indicators-table .col-toggle { padding-top: 6px; padding-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -1123,12 +1127,12 @@
     <div class="container">
         <!-- شاشة الترحيب (ظاهرة افتراضياً) -->
         <div id="welcome-page">
-            <div class="logo-lockup">
+            <div class="logo-lockup" style="margin-bottom:16px;">
                 <div class="gmax-brand">
                     <span class="gmax-white">G</span><span class="gmax-gold">MAX</span>
                 </div>
                 <div class="auto-row"><span class="auto-line"></span><span class="auto-text">AUTO</span><span class="auto-line"></span></div>
-                <div class="main-subtitle">مساعدك الذكي للصيانة</div>
+                <div class="main-subtitle">الحالة العامة لمواعيد السيارة</div>
             </div>
             <div class="single-global-light"></div>
 
@@ -1686,6 +1690,7 @@
                     if (item.type === 'time') {
                         if (!isValidDateStr(o.expiryDate)) return;   // تاريخ غير صالح: يبقى المؤشر معطّلاً بدل أن يظهر منتهيًا
                         rec[mod][item.key] = { expiryDate: o.expiryDate, active: o.active !== false };
+                        if (o.lightOff === true) rec[mod][item.key].lightOff = true;
                         if (item.spec && typeof o.spec === 'string' && o.spec.trim()) rec[mod][item.key].spec = o.spec.trim().slice(0, 40);
                     } else {
                         if (!Number.isFinite(o.max) || o.max < 0 || o.max > 99999999) return;
@@ -1697,6 +1702,7 @@
                             active: o.active !== false
                         };
                         if (item.spec && typeof o.spec === 'string' && o.spec.trim()) obj.spec = o.spec.trim().slice(0, 40);
+                        if (o.lightOff === true) obj.lightOff = true;
                         rec[mod][item.key] = obj;
                     }
                 });
@@ -2131,7 +2137,7 @@
             let hasYellow = false;
             let hasActive = false;
             metaList.forEach(item => {
-                if (dataRec[item.key] && dataRec[item.key].active !== false) {
+                if (dataRec[item.key] && dataRec[item.key].active !== false && !dataRec[item.key].lightOff) {
                     hasActive = true;
                     let st = getIndicatorStatus(modKey, item.key, dataRec);
                     if (st === 'red') hasRed = true;
@@ -2497,13 +2503,13 @@
             document.getElementById('date-info-overlay').style.display = 'flex';
         }
         function showWelcomeHelp() {
-            showInfo('عن التطبيق', '<b style="color:#b8860b;">فكرة التطبيق</b><br>جي ماكس أوتو يُذكّرك بمواعيد صيانة سيارتك ووثائقها قبل أن تفوتك، وتنبيهاته مبنية على المعلومات التي سجّلتَها فيه.<br><br><b style="color:#b8860b;">الضوء</b><br>يتغيّر لونه بحسب الحالة: أحمر إن كان هناك ما حان موعده، وبرتقالي إن كان هناك ما اقترب، وأخضر إن كانت كل المؤشرات بخير.<br><br><b style="color:#b8860b;">العداد</b><br>رقم يزيد كل يوم بحسب معدل سيرك المعتاد. ولتصحيحه اضغط على الخانة (عليها أيقونة القلم) واكتب قراءة عدّاد سيارتك الحقيقية من حين لآخر.<br><br><b style="color:#b8860b;">زر Start</b><br>اضغط عليه للدخول إلى صفحة التنبيهات. وللعودة إلى هذه الصفحة اضغط على شعار التطبيق في أعلى أي صفحة.');
+            showInfo('عن التطبيق', '<b style="color:#b8860b;">فكرة التطبيق</b><br>جي ماكس أوتو، مساعدك الذكي للصيانة، يُذكّرك بمواعيد صيانة سيارتك ووثائقها قبل أن تفوتك، وتنبيهاته مبنية على المعلومات التي سجّلتَها فيه.<br><br><b style="color:#b8860b;">الضوء</b><br>يتغيّر لونه بحسب الحالة: أحمر إن كان هناك ما حان موعده، وبرتقالي إن كان هناك ما اقترب، وأخضر إن كانت كل المؤشرات بخير.<br><br><b style="color:#b8860b;">العداد</b><br>رقم يزيد كل يوم بحسب معدل سيرك المعتاد. ولتصحيحه اضغط على الخانة (عليها أيقونة القلم) واكتب قراءة عدّاد سيارتك الحقيقية من حين لآخر.<br><br><b style="color:#b8860b;">زر Start</b><br>اضغط عليه للدخول إلى صفحة التنبيهات. وللعودة إلى هذه الصفحة اضغط على شعار التطبيق في أعلى أي صفحة.');
         }
         function showAlertsPageHelp() {
             showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">البطاقات الثلاث</b><br>لكل بطاقة اسمها وضوء يبيّن حالتها: أخضر بخير، برتقالي اقترب موعد شيء فيها، أحمر حان موعده. اضغط على البطاقة لترى مؤشراتها وتحدّثها.<br><br><b style="color:#b8860b;">المفتاح</b><br>عند فتح أي مؤشر تجد في أعلى صفحته مفتاحًا لتفعيله أو تعطيله. المؤشر المعطَّل ضوؤه أبيض ولا يظهر له رقم.<br><br><b style="color:#b8860b;">الوقود والمصاريف</b><br>بطاقة «الوقود» تفتح مباشرة نافذة تسجيل تعبئة وقود، وبطاقة «المصاريف» تفتح صفحة المصاريف والإحصائيات.<br><br><b style="color:#b8860b;">القائمة</b><br>الخطوط الثلاثة في أعلى يمين كل صفحة تفتح قائمة فيها: شرح الصفحة، وشرح التطبيق، والنسخة الاحتياطية، والملاحظات، وإعادة ضبط المصنع.');
         }
         function showGroupPageHelp() {
-            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على أي مؤشر لتحديث موعده القادم أو لتفعيله وتعطيله. في المؤشرات الزمنية (كالتأمين) تظهر نافذة فيها مفتاح التفعيل والتقويم: اختر التاريخ الجديد ثم أكّد. وفي مؤشرات الكيلومتر تظهر نافذة فيها العداد الحالي والعداد عند التغيير القادم، وبجانب كل منهما زر «تعديل». في تعديل العداد القادم اكتب الرقم، أو اضغط على اقتراح جاهز (مثل +10 000) ليُضاف إلى العداد الحالي. الرقم يبيّن ما بقي بالكيلومتر أو بالأيام، والضوء يبيّن الحالة.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>كل مؤشرات المجموعة ظاهرة دائمًا. المعطَّل ضوؤه باهت وبلا رقم، واضغط عليه لتفعّله.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الأربعة في أعلى الصفحة تنقلك مباشرة بين الوثائق والزيت والصيانة والإضافية. وزر «العودة إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
+            showInfo('عن هذه الصفحة', '<b style="color:#b8860b;">المؤشرات</b><br>اضغط على <b>اسم المؤشر</b> لترى معلوماته (آخر تغيير، مدة الصلاحية، النوع). واضغط على <b>الرقم</b> لتمدّد الموعد بعد فحص السيارة، بالكيلومتر أو بالتاريخ. واضغط على <b>الضوء</b> لتعطيله إن أردت متابعة الرقم فقط، وأعد الضغط لتفعيله. أما تغيير القطع وتجديد الوثائق فيكون من زر «تحديث» الأصفر فقط.<br><br><b style="color:#b8860b;">المؤشرات المعطَّلة</b><br>كل مؤشرات المجموعة ظاهرة دائمًا. المعطَّل ضوؤه باهت وبلا رقم، واضغط عليه لتفعّله.<br><br><b style="color:#b8860b;">التنقل</b><br>الأزرار الأربعة في أعلى الصفحة تنقلك مباشرة بين الوثائق والزيت والصيانة والإضافية. وزر «العودة إلى الرئيسية» أسفل الجدول يعيدك إلى البطاقات.');
         }
         function showDateInfo() {
             showInfo('تاريخ اليوم', 'هذا التاريخ مأخوذ من ساعة هاتفك ولا يمكن تعديله من هنا.<br>إن وجدته غير صحيح، فصحّحه من إعدادات الهاتف (التاريخ والوقت)، ثم عُد إلى التطبيق.');
@@ -2906,14 +2912,14 @@
                 const isT = item.type === 'time';
                 let cellRem = '', st = 'none';
                 if (on) {
-                    st = getIndicatorStatus(mod, item.key, records[mod]);
+                    st = obj.lightOff ? 'none' : getIndicatorStatus(mod, item.key, records[mod]);
                     const rem = isT ? calculateRemainingDays(obj.expiryDate) : obj.max - odo;
                     cellRem = `<span class="num-ltr">${formatNumberWithSpace(rem)}</span>${isT ? ' يوم' : ' كم'}`;
                 }
-                return `<tr class="${on ? '' : 'row-off'}" onclick="openDetailModalFromAll('${mod}', '${item.key}')">
-                    <td class="col-indicator"><span class="chev"></span><span>${item.label}</span></td>
-                    <td class="col-remaining">${cellRem}</td>
-                    <td class="col-toggle"><div class="status-light status-${st}"></div></td>
+                return `<tr class="${on ? '' : 'row-off'}">
+                    <td class="col-indicator" onclick="openItemInfo('${mod}', '${item.key}')"><span class="chev"></span><span>${item.label}</span></td>
+                    <td class="col-remaining" onclick="openItemExtend('${mod}', '${item.key}')">${cellRem}</td>
+                    <td class="col-toggle" onclick="toggleItemLight('${mod}', '${item.key}')"><div class="status-light status-${st}"></div></td>
                 </tr>`;
             }).join('');
             const updBtn = `<div class="grp-update"><button class="grp-update-btn" onclick="openBatchUpdate('${mod}')">تحديث</button><button class="grp-back-btn" onclick="navigateAlertsPage()">العودة إلى الرئيسية</button></div>`;
@@ -2933,6 +2939,48 @@
             return renderGroupPage(mod);
         }
 
+        function closeSpecPop() { document.getElementById('spec-pop-overlay').style.display = 'none'; }
+        function itemRefresh() { updateGlobalLight(); if (document.getElementById('main-app-container').style.display === 'block') renderForm(currentModule); }
+        function openItemInfo(mod, key) {
+            const m = getItemMeta(mod, key), obj = records[mod] && records[mod][key];
+            if (!m || !obj) return;
+            const on = obj.active !== false, odo = records.car.odometer.currentEstimatedOdo;
+            const row = (l, v) => `<div class="nm-row"><span class="nm-row-label">${l}</span><span class="nm-row-label"><b>${v}</b></span></div>`;
+            const km = n => `<span class="num-ltr">${formatNumberWithSpace(n)}</span> كم`;
+            let rows = '';
+            if (!on) rows = '<div class="nm-msg-text">هذا المؤشر غير مفعَّل.<br>فعّله من زر «تحديث» أسفل الجدول.</div>';
+            else if (m.type === 'time') {
+                rows += row('تنتهي الصلاحية في', convertDateToReadableArabic(obj.expiryDate));
+                rows += row('الباقي', `<span class="num-ltr">${formatNumberWithSpace(calculateRemainingDays(obj.expiryDate))}</span> يوم`);
+            } else {
+                if (obj.lastDate) rows += row('آخر تغيير', convertDateToReadableArabic(obj.lastDate));
+                if (obj.lastOdo > 0) { rows += row('العداد عند آخر تغيير', km(obj.lastOdo)); rows += row('مدة الصلاحية', km(Math.max(0, obj.max - obj.lastOdo))); }
+                rows += row('الموعد القادم', 'عند ' + km(obj.max));
+                rows += row('الباقي', km(obj.max - odo));
+            }
+            if (on && m.spec && obj.spec) rows += row(m.spec.label, escapeHtml(obj.spec));
+            if (on && obj.lightOff) rows += '<div class="nm-hint" style="margin-top:10px;">ضوء هذا المؤشر معطَّل، والأرقام تبقى تُتابَع.</div>';
+            nmTitle('spec-pt', '', 'معلومات ' + m.label);
+            document.getElementById('spec-pop-box').innerHTML = `<div class="nm-head"><span class="nm-title">معلومات</span></div><div class="nm-body">${rows}</div>
+                <div class="nm-actions">${on ? `<button class="nm-stop" onclick="itemStopTracking('${mod}','${key}')">إيقاف المتابعة</button>` : ''}<button class="nm-x" onclick="closeSpecPop()">إغلاق</button></div>`;
+            document.getElementById('spec-pop-overlay').style.display = 'flex';
+        }
+        function itemStopTracking(mod, key) {
+            const obj = records[mod][key]; if (!obj) return;
+            obj.active = false; delete obj.lightOff;
+            saveAppData(); closeSpecPop(); itemRefresh();
+        }
+        function openItemExtend(mod, key) {
+            const obj = records[mod] && records[mod][key];
+            if (!obj || obj.active === false) { openItemInfo(mod, key); return; }
+            openTimePop(mod, key, true);
+        }
+        function toggleItemLight(mod, key) {
+            const obj = records[mod] && records[mod][key];
+            if (!obj || obj.active === false) return;
+            if (obj.lightOff) delete obj.lightOff; else obj.lightOff = true;
+            saveAppData(); itemRefresh();
+        }
         function openDetailModalFromAll(modKey, key) {
             openTimePop(modKey, key);
         }
@@ -2942,13 +2990,13 @@
         // ===== نافذة تحديث المؤشر الزمني (تفتح مباشرة من الجدول) =====
         let tp = null;
         function tpPad(n) { return String(n).padStart(2, '0'); }
-        function openTimePop(mod, key) {
+        function openTimePop(mod, key, ext) {
             const m = getItemMeta(mod, key), obj = records[mod] && records[mod][key];
             if (!m || !obj) return;
             const on = obj.active !== false;
             const date = isValidDateStr(obj.expiryDate) ? obj.expiryDate : '';
             const base = date || getTodayDateString();
-            tp = { mod: mod, key: key, kind: isTimeItem(mod, key) ? 'time' : 'km', next: '', mode: null, presetIdx: null, keypad: false, wasActive: on, enabled: on, date: date,
+            tp = { ext: !!ext, mod: mod, key: key, kind: isTimeItem(mod, key) ? 'time' : 'km', next: '', mode: null, presetIdx: null, keypad: false, wasActive: on, enabled: on, date: date,
                    calYear: parseInt(base.slice(0, 4)), calMonth: parseInt(base.slice(5, 7)) - 1,
                    spec: obj.spec || '', specPrev: obj.spec || '', specUnknown: false, warn: false, warnOk: false };
             document.getElementById('time-pop-overlay').style.display = 'flex';
@@ -2960,7 +3008,7 @@
             tp = null;
         }
         function tpToggle() {
-            if (!tp || tp.warn) return;
+            if (!tp || tp.warn || tp.ext) return;
             tp.enabled = !tp.enabled;
             tpRender();
         }
@@ -3000,8 +3048,9 @@
         }
                 function tpRender() {
             const m = getItemMeta(tp.mod, tp.key);
-            document.getElementById('tp-title').innerHTML = tp.warn ? '' : (!tp.enabled ? 'معطَّل' : (tp.kind === 'km' ? 'مفعَّل' : (tp.date ? convertDateToReadableArabic(tp.date) : 'اختر التاريخ')));
-            nmTitle('tp-pt', '', tp.warn ? 'تأكّد من تغيير المواصفة' : (!tp.enabled ? 'فعّل المؤشر لمتابعته' : (tp.kind === 'km' ? 'عدّل موعد تغيير ' + m.label : 'اختر تاريخ انتهاء ' + m.label)));
+            document.getElementById('tp-sw').style.display = tp.ext ? 'none' : '';
+            document.getElementById('tp-title').innerHTML = tp.warn ? '' : (!tp.enabled ? 'معطَّل' : (tp.kind === 'km' ? (kpNext() ? 'الباقي ' + formatNumberWithSpace(kpNext() - records.car.odometer.currentEstimatedOdo) + ' كم' : 'اكتب العداد القادم') : (tp.date ? convertDateToReadableArabic(tp.date) : 'اختر التاريخ')));
+            nmTitle('tp-pt', '', tp.warn ? 'تأكّد من تغيير المواصفة' : (!tp.enabled ? 'فعّل المؤشر لمتابعته' : (tp.kind === 'km' ? 'مدّد موعد تغيير ' + m.label : 'اختر تاريخ انتهاء ' + m.label)));
             document.getElementById('tp-sw').classList.toggle('on', tp.enabled);
             document.getElementById('tp-err').innerText = '';
             const bodyEl = document.getElementById('tp-body');
@@ -3018,7 +3067,7 @@
                     okDis = !kpNext();
                 } else {
                     cls = 'nm-body nm-top';
-                    body = tpCalendarHtml() + (m.spec ? tpSpecRowHtml(m) : '');
+                    body = tpCalendarHtml() + (m.spec && !tp.ext ? tpSpecRowHtml(m) : '');
                     okDis = !tp.date;
                 }
                 actions = `<button class="nm-ok" onclick="tpConfirm()" ${okDis ? 'disabled' : ''}>تأكيد</button><button class="nm-x" onclick="tpClose()">إلغاء</button>`;
@@ -3039,9 +3088,10 @@
         function kpBodyHtml(m) {
             const odo = records.car.odometer.currentEstimatedOdo;
             const nxt = kpNext();
-            return `<div class="nm-row"><span class="nm-row-label">العداد الحالي للسيارة: <b><span class="num-ltr">${formatNumberWithSpace(odo)}</span> كم</b></span><button class="nm-edit" onclick="kpEditOdo()">تعديل</button></div>
+            const curNext = (tp.ext && records[tp.mod][tp.key]) ? `<div class="nm-row"><span class="nm-row-label">الموعد الحالي: <b>عند <span class="num-ltr">${formatNumberWithSpace(records[tp.mod][tp.key].max)}</span> كم</b></span></div>` : '';
+            return curNext + `<div class="nm-row"><span class="nm-row-label">العداد الحالي للسيارة: <b><span class="num-ltr">${formatNumberWithSpace(odo)}</span> كم</b></span><button class="nm-edit" onclick="kpEditOdo()">تعديل</button></div>
                 <div class="nm-row"><span class="nm-row-label">العداد عند التغيير القادم:${nxt ? ` <b><span class="num-ltr">${formatNumberWithSpace(nxt)}</span> كم</b>` : ''}</span><button class="nm-edit" onclick="kpEditNext()">تعديل</button></div>
-                ${m.spec ? tpSpecRowHtml(m) : ''}`;
+                ${m.spec && !tp.ext ? tpSpecRowHtml(m) : ''}`;
         }
                 function kpEditNext() { openOdoDialog('popupNext'); }
         function nextSuggestHtml() {

@@ -1247,7 +1247,8 @@
                 </div>
                 <div class="nm-sep" id="fuel-sep"></div>
                 <div class="nm-pad" id="fuel-pad"></div>
-                <input type="text" id="exp-note" class="nm-input" maxlength="40" placeholder="ملاحظة (اختيارية): مثل بطارية أو غرامة سرعة">
+                <input type="text" id="exp-note" class="nm-input" maxlength="40" placeholder="ملاحظة (اختيارية)">
+                <div id="exp-nav" style="display:none;gap:8px;width:100%;max-width:320px;"><button class="nm-opt" style="flex:1;height:44px;font-size:13px;direction:rtl;" onclick="expenseGo('list')">قائمة المصاريف</button><button class="nm-opt" style="flex:1;height:44px;font-size:13px;direction:rtl;" onclick="expenseGo('stats')">الإحصائيات</button></div>
                 <input type="date" id="fuel-date" style="display:none;">
                 <div class="nm-tankbox" id="fuel-tank-box" style="display:none;"><div class="nm-sep" style="margin:10px 0;"></div><div class="nm-hint" style="margin:6px 0 4px;">حالة الخزان بعد التعبئة</div><div class="nm-tank" id="fuel-tank"></div></div>
             </div>
@@ -2591,7 +2592,7 @@
         let expView = 'home';
         function expGo(v) { expView = v; renderExpensesPage(); window.scrollTo(0, 0); }
         const EXP_BACK_ARROW = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-        const expSubHead = title => `<div class="exp-subhead"><button class="exp-back" onclick="expGo('home')" aria-label="رجوع">${EXP_BACK_ARROW}</button><span>${title}</span></div>`;
+        const expSubHead = title => `<div class="exp-subhead"><button class="exp-back" onclick="navigateAlertsPage()" aria-label="رجوع">${EXP_BACK_ARROW}</button><span>${title}</span></div>`;
 
         function renderExpensesPage() {
             if (expView === 'stats') return renderStatsPage();
@@ -2647,6 +2648,8 @@
         }
         function expPick(k) {
             expCat = k;
+            document.getElementById('exp-nav').style.display = 'none';
+            document.getElementById('exp-note').style.margin = '';
             fuelAmountStr = '';
             fuelTank = '';
             nmTitle('fuel-pt', '', 'اكتب مبلغ ' + expCatLabel(k));
@@ -2672,6 +2675,24 @@
             expShowStep1();
             document.getElementById('fuel-overlay').style.display = 'flex';
         }
+        function expenseOpen() {
+            expCat = 'other'; fuelAmountStr = ''; fuelTank = '';
+            nmTitle('fuel-pt', '', 'اكتب المبلغ مع الملاحظة (اختيارية)');
+            document.getElementById('fuel-sep').style.display = 'none';
+            document.getElementById('fuel-chips').style.display = 'none';
+            document.getElementById('fuel-tank-box').style.display = 'none';
+            const n = document.getElementById('exp-note'); n.style.display = ''; n.value = ''; n.style.margin = '50px 0';
+            document.getElementById('exp-nav').style.display = 'flex';
+            document.getElementById('fuel-date').value = getTodayDateString();
+            document.getElementById('fuel-err').innerText = '';
+            document.getElementById('fuel-pad').innerHTML = nmPadHtml('fuelKey', 'fuelDelKey', 'fuelClearKey');
+            document.getElementById('exp-actions').innerHTML = '<button class="nm-ok" id="fuel-ok-btn" onclick="fuelSave()" disabled>تأكيد</button><button class="nm-x" onclick="fuelClose()">إلغاء</button>';
+            document.getElementById('exp-step1').style.display = 'none';
+            document.getElementById('exp-step2').style.display = '';
+            document.getElementById('fuel-overlay').style.display = 'flex';
+            fuelRefreshAmount();
+        }
+        function expenseGo(v) { fuelClose(); navigateExpensesPage(); expGo(v); }
         function fuelClose() { document.getElementById('fuel-overlay').style.display = 'none'; }
         function fuelSetAmount(n) { fuelAmountStr = String(n); document.getElementById('fuel-err').innerText = ''; fuelRefreshAmount(); }
         function fuelKey(k) {
@@ -2892,7 +2913,7 @@
             const bottomRow = `<div class="cards-row">
                     <div class="home-card third" onclick="navigateToModule('extra')"><span class="home-card-title sec">${names.extra}</span><div class="status-light status-${getModuleStatus('extra')}"></div></div>
                     <div class="home-card third" onclick="fuelQuick()"><span class="home-card-title sec">الوقود</span><div class="status-light status-none"></div></div>
-                    <div class="home-card third" onclick="navigateExpensesPage()"><span class="home-card-title sec">المصاريف</span><div class="status-light status-none"></div></div>
+                    <div class="home-card third" onclick="expenseOpen()"><span class="home-card-title sec">المصاريف</span><div class="status-light status-none"></div></div>
                 </div>`;
             const backRow = `<button class="back-slate" onclick="goHome()">الرجوع إلى صفحة الاستقبال</button>`;
             FORM_EL().innerHTML = `<div class="car-hero"><svg viewBox="0 0 240 90" width="176" height="66" aria-label="سيارة" role="img">
@@ -2930,7 +2951,7 @@
                 }
                 return `<tr class="${on ? '' : 'row-off'}" onclick="openItemInfo('${mod}', '${item.key}')">
                     <td class="col-indicator"><span class="chev"></span><span>${item.label}</span></td>
-                    <td class="col-remaining">${(obj && obj.hideRem) ? '' : cellRem}</td>
+                    <td class="col-remaining">${cellRem}</td>
                     <td class="col-toggle" onclick="event.stopPropagation(); openItemLight('${mod}', '${item.key}')"><div class="status-light status-${st}"></div></td>
                 </tr>`;
             }).join('');
@@ -2993,7 +3014,7 @@
             if (!keep) itemDraft = { hideRem: !!obj.hideRem, lightOff: !!obj.lightOff };
             const sw = (isOn, fn) => `<span class="tp-sw ${isOn ? 'on' : ''}" onclick="${fn}('${mod}','${key}')"></span>`;
             let rows = `<div class="nm-row"><span class="nm-row-label">إبقاء الضوء مفعَّلاً</span>${sw(!itemDraft.lightOff, 'toggleItemLight')}</div>`;
-            if (itemDraft.lightOff) rows += `<div class="nm-msg-text" style="font-size:12px;line-height:1.7;">لن يؤثر هذا المؤشر على الحالة العامة.</div><div class="nm-row"><span class="nm-row-label">إخفاء الرقم من الجدول</span>${sw(itemDraft.hideRem, 'toggleItemHide')}</div>`;
+            if (itemDraft.lightOff) rows += `<div class="nm-msg-text" style="font-size:12px;line-height:1.7;">لن يؤثر هذا المؤشر على الحالة العامة.</div>`;
             openMini('ضوء ' + m.label, rows, `<button class="nm-ok" onclick="itemConfirm('${mod}','${key}')">تأكيد</button><button class="nm-x" onclick="closeSpecPop()">إلغاء</button>`);
         }
         function toggleItemLight(mod, key) { if (!itemDraft) return; itemDraft.lightOff = !itemDraft.lightOff; openItemLight(mod, key, true); }
@@ -3002,7 +3023,7 @@
             const obj = records[mod] && records[mod][key];
             if (obj && itemDraft) {
                 if (itemDraft.lightOff) obj.lightOff = true; else delete obj.lightOff;
-                if (itemDraft.lightOff && itemDraft.hideRem) obj.hideRem = true; else delete obj.hideRem;
+                delete obj.hideRem;
                 saveAppData();
             }
             closeSpecPop(); itemRefresh();

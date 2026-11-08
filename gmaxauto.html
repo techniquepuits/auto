@@ -2325,9 +2325,12 @@ html { scrollbar-gutter: stable; }
 
         // الصفحة الأولى: تُفتح بالضغط على شعار التطبيق من أي صفحة
         // صورة السيارة عنصر واحد يُنقل بين الصفحتين دون إعادة إنشائه، فلا ترمش
+        let carImgEl = null;
         function moveCarTo(id) {
-            const img = document.getElementById('car-img'), box = document.getElementById(id);
-            if (img && box && img.parentNode !== box) box.appendChild(img);
+            // نحتفظ بمرجع للصورة لأنها تنفصل عن الصفحة حين تُستبدل صفحة البطاقات بصفحة فرعية
+            if (!carImgEl) carImgEl = document.getElementById('car-img');
+            const box = document.getElementById(id);
+            if (carImgEl && box && carImgEl.parentNode !== box) box.appendChild(carImgEl);
         }
         function goHome() {
             moveCarTo('welcome-car-hero');
@@ -3004,6 +3007,7 @@ html { scrollbar-gutter: stable; }
         }
 
         function renderForm(mod) {
+            if (mod !== 'alerts') moveCarTo('welcome-car-hero');   // نُبقي الصورة في مكانها الآمن قبل استبدال محتوى الصفحة
             { document.querySelector('#main-app-container .page-header').classList.add('compact'); }
             if (mod === 'expenses') return renderExpensesPage();
             if (mod === 'alerts') return renderCardsPage();

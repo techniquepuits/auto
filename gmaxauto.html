@@ -1106,6 +1106,9 @@
 #spec-pop-box .nm-row { padding: 5px 4px; }
 #spec-pop-box .nm-row-label { font-size: 13px; }
 .nm-sec-sep { width: 100%; height: 1px; background: rgba(255,255,255,0.2); margin: 6px 0; flex: none; }
+.nm-chk { width: 22px; height: 22px; flex: none; border: 2px solid #b8860b; border-radius: 6px; background: #121212; position: relative; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.nm-chk.on { background: #b8860b; }
+.nm-chk.on::after { content: ""; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; border: solid #000; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
 
 /* ===== تصميم صفحة الاستقبال وصفحة البطاقات على نمط gmaxa ===== */
 #welcome-page { padding: 10px 20px; justify-content: flex-start; }
@@ -3051,27 +3054,19 @@ html { scrollbar-gutter: stable; }
             }
             if (m.spec && obj.spec) rows += row(m.spec.label, escapeHtml(obj.spec));
 
-            // سطران في الأسفل: تعطيل الضوء، وإلغاء المؤشر من القائمة (المفتاح مفعَّل تلقائيًا)
-            if (!keep) itemDraft = { lightOff: !!obj.lightOff, off: false };
-            const sw = (isOn, fn) => `<span class="tp-sw ${isOn ? 'on' : ''}" onclick="${fn}('${mod}','${key}')"></span>`;
-            const note = t => `<div class="nm-msg-text" style="font-size:12px;line-height:1.7;">${t}</div>`;
-            rows += '<div class="nm-sec-sep"></div>';
-            rows += `<div class="nm-row"><span class="nm-row-label">تعطيل الضوء<br><span style="font-size:11px;opacity:.65;">(الأخضر، البرتقالي، الأحمر)</span></span>${sw(!itemDraft.lightOff, 'toggleItemLight')}</div>`;
-            if (itemDraft.lightOff) rows += note('الضوء معطَّل: لن يؤثر هذا المؤشر على الحالة العامة.');
-            rows += `<div class="nm-row"><span class="nm-row-label">إلغاء المؤشر من القائمة</span>${sw(!itemDraft.off, 'toggleItemOff')}</div>`;
-            if (itemDraft.off) rows += note('سيصبح المؤشر معطَّلًا في الجدول، وتفعّله من جديد عبر زر «تحديث».');
+            // سطر واحد في الأسفل: تعطيل الضوء (مربع صغير؛ عند تحديده يُعطَّل ضوء هذا المؤشر)
+            if (!keep) itemDraft = { lightOff: !!obj.lightOff };
+            rows += `<div class="nm-row"><span class="nm-row-label">تعطيل الضوء</span><button type="button" class="nm-chk ${itemDraft.lightOff ? 'on' : ''}" onclick="toggleItemLight('${mod}','${key}')" aria-label="تعطيل الضوء"></button></div>`;
             openMini('معلومات ' + m.label, rows, `<button class="nm-ok" onclick="itemConfirm('${mod}','${key}')">تأكيد</button><button class="nm-x" onclick="closeSpecPop()">إلغاء</button>`);
         }
         // النقر على الضوء يفتح البطاقة نفسها
         function openItemLight(mod, key) { openItemInfo(mod, key); }
         function toggleItemLight(mod, key) { if (!itemDraft) return; itemDraft.lightOff = !itemDraft.lightOff; openItemInfo(mod, key, true); }
-        function toggleItemOff(mod, key) { if (!itemDraft) return; itemDraft.off = !itemDraft.off; openItemInfo(mod, key, true); }
         function itemConfirm(mod, key) {
             const obj = records[mod] && records[mod][key];
             if (obj && itemDraft) {
                 if (itemDraft.lightOff) obj.lightOff = true; else delete obj.lightOff;
                 delete obj.hideRem;
-                if (itemDraft.off) obj.active = false;
                 saveAppData();
             }
             closeSpecPop(); itemRefresh();

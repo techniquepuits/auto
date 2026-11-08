@@ -1113,11 +1113,12 @@
 .car-hero { width: 100%; height: auto; margin-top: 6px; margin-bottom: 10px; }
 .car-hero img { width: 90%; height: auto; border-radius: 12px; object-fit: contain; }
 .odometer-label { font-size: 13px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 6px; font-weight: 300; letter-spacing: 0.3px; }
-#welcome-page .welcome-odometer-section { margin-bottom: 12px; }
-#welcome-page .welcome-odometer-text { width: 120px; padding: 6px 8px; font-size: 16px; gap: 6px; }
-#welcome-page .welcome-odometer-text .odo-km { font-size: 11px; font-weight: normal; color: rgba(255,255,255,0.4); }
-#welcome-page .single-global-light { margin-bottom: 15px; }
-#welcome-page .start-app-btn { padding: 14px 45px; font-size: 18px; margin-top: 5px; }
+#welcome-page .welcome-odometer-section { margin-bottom: 24px; }
+#welcome-page .welcome-odometer-text { width: 190px; padding: 12px 14px; font-size: 24px; gap: 10px; border-radius: 12px; }
+#welcome-page .welcome-odometer-text .odo-km { font-size: 14px; font-weight: normal; color: rgba(255,255,255,0.4); }
+#welcome-page .welcome-odometer-text .odo-pen { color: rgba(255,255,255,0.45); margin-right: 2px; }
+#welcome-page .single-global-light { margin-bottom: 24px; }
+#welcome-page .start-app-btn { padding: 14px 45px; font-size: 18px; margin-top: 0; }
 #editor-form-container .cards-container { gap: 10px; margin-top: 0; }
 #editor-form-container .cards-container > .home-card { padding: 16px 20px; }
 #editor-form-container .cards-row { gap: 8px; }
@@ -1164,7 +1165,7 @@
 
             <div class="odometer-label">العداد الحالي للسيارة</div>
             <div class="welcome-odometer-section">
-                <div class="welcome-odometer-text" onclick="editWelcomeOdo()"><span id="welcome-odo-display">120 000</span><span class="odo-km">km</span></div>
+                <div class="welcome-odometer-text" onclick="editWelcomeOdo()"><span class="odo-pen" data-ico="note" data-s="20"></span><span id="welcome-odo-display">120 000</span><span class="odo-km">km</span></div>
             </div>
 
             <div class="single-global-light"></div>

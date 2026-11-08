@@ -1618,9 +1618,7 @@ html { scrollbar-gutter: stable; }
         const metadata = {
             docs: [
                 { key: 'insurance', label: 'التأمين', type: 'time', presets: [3, 6, 12] },
-                { key: 'techControl', label: 'المراقبة التقنية', type: 'time', presets: [12, 24, 36] },
-                { key: 'drivingLicense', label: 'رخصة السياقة', type: 'time', presets: [36, 60, 120] },
-                { key: 'vignette', label: 'القسيمة', type: 'time', presets: [12, 24, 36] }
+                { key: 'techControl', label: 'المراقبة التقنية', type: 'time', presets: [12, 24, 36] }
             ],
             oil: [
                 { key: 'engineOilNextOdo', label: 'زيت المحرك', type: 'km', defaultMax: '10000', presets: [5000, 7500, 10000, 12000, 15000], spec: { label: 'نوع الزيت', presets: ['5W-30', '5W-40', '10W-40', '15W-40', '0W-30'], warn: 'درجة الزيت (اللزوجة) يحدّدها مصنّع محركك. استعمال درجة غير الموصى بها قد يضعف حماية المحرك أو يزيد استهلاك الوقود.' } },
@@ -1630,13 +1628,15 @@ html { scrollbar-gutter: stable; }
             ],
             general: [
                 { key: 'timingBelt', label: 'حزام التوزيع', type: 'km', defaultMax: '60000', presets: [60000, 80000, 100000, 120000, 150000] },
-                { key: 'tensioner', label: 'الشداد', type: 'km', defaultMax: '60000', presets: [60000, 80000, 100000, 120000, 150000] },
-                { key: 'brakePadsFront', label: 'بلاكات أمامية', type: 'km', defaultMax: '40000', presets: [20000, 30000, 40000, 50000, 60000] },
-                { key: 'brakePadsRear', label: 'بلاكات خلفية', type: 'km', defaultMax: '80000', presets: [40000, 60000, 80000, 100000, 120000] }
+                { key: 'tensioner', label: 'الشداد', type: 'km', defaultMax: '60000', presets: [60000, 80000, 100000, 120000, 150000] }
             ],
             extra: [
+                { key: 'drivingLicense', label: 'رخصة السياقة', type: 'time', fixedDate: true, presets: [36, 60, 120] },
+                { key: 'vignette', label: 'القسيمة', type: 'time', fixedDate: true, presets: [12, 24, 36] },
                 { key: 'gplControl', label: 'مراقبة GPL', type: 'time', fixedDate: true, presets: [12, 24, 36] },
                 { key: 'extinguisherControl', label: 'مراقبة الطفاية', type: 'time', fixedDate: true, presets: [6, 12, 24] },
+                { key: 'brakePadsFront', label: 'بلاكات أمامية', type: 'km', defaultMax: '40000', presets: [20000, 30000, 40000, 50000, 60000] },
+                { key: 'brakePadsRear', label: 'بلاكات خلفية', type: 'km', defaultMax: '80000', presets: [40000, 60000, 80000, 100000, 120000] },
                 { key: 'gearOil', label: 'زيت علبة السرعة', type: 'km', defaultMax: '40000', presets: [40000, 60000, 80000, 100000, 120000], spec: { label: 'نوع زيت العلبة', presets: ['ATF', '75W-80', '75W-90', '80W-90', 'CVT'], warn: 'أنواع زيوت علب السرعة غير قابلة للتبادل: الأوتوماتيكية والـCVT واليدوية لكلٍّ زيتها، والخطأ فيها قد يتلف العلبة.' } },
                 { key: 'acFilter', label: 'فلتر المكيف', type: 'km', defaultMax: '20000', presets: [10000, 15000, 20000, 25000, 30000] },
                 { key: 'brakeFluid', label: 'سائل الفرامل', type: 'time', presets: [12, 24, 36], spec: { label: 'درجة سائل الفرامل', presets: ['DOT 3', 'DOT 4', 'DOT 4 LV', 'DOT 5.1', 'DOT 5'], warn: 'السائل السيليكوني DOT 5 لا يُخلط بغيره من الدرجات، وتختلف الدرجات في حرارة الغليان. استعمل ما يوصي به مصنّع سيارتك.' } },
@@ -3504,7 +3504,7 @@ html { scrollbar-gutter: stable; }
     stage.innerHTML='';
     var rows=el('<div class="rows"></div>');
     if(mod==='docs') stage.appendChild(el('<p class="hint">حدد تاريخ انتهاء الصلاحية القادم لكل وثيقة مختارة</p>'));
-    else if(selected.some(function(k){return fixedDate(item(k));})) stage.appendChild(el('<p class="hint">مراقبة الغاز والطفاية موعدها تاريخ محدد: اختر تاريخ انتهاء الصلاحية، وبقية المؤشرات بمدة</p>'));
+    else if(selected.some(function(k){return fixedDate(item(k));})) stage.appendChild(el('<p class="hint">الوثائق ومراقبة الغاز والطفاية موعدها تاريخ محدد: اختر تاريخ انتهاء الصلاحية، وبقية المؤشرات بمدة</p>'));
     selected.forEach(function(k){
       var it=item(k), u=unitOf(it), t=isTime(it);
       var r=el('<div class="row"><span class="rname"></span></div>');
@@ -3665,7 +3665,7 @@ html { scrollbar-gutter: stable; }
     if(amt>0){
       var arr=fuelLoad();
       var note=selected.map(function(k){return item(k).label;}).join('، ').slice(0,40);
-      var e={ id:Date.now(), d:(mod==='docs'?today:date), a:amt, c:(mod==='docs'?'docs':'maint') };
+      var e={ id:Date.now(), d:(mod==='docs'?today:date), a:amt, c:((mod==='docs'||selected.every(function(k){return k==='drivingLicense'||k==='vignette';}))?'docs':'maint') };
       if(note) e.n=note;
       arr.push(e); fuelStore(arr);
     }

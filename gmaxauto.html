@@ -1162,7 +1162,7 @@ html { scrollbar-gutter: stable; }
                 </div>
             </div>
 
-            <div class="car-hero"><img src="https://raw.githubusercontent.com/techniquepuits/mecamax/main/model/Renault/207.jpg" alt="صورة السيارة" width="1200" height="896" decoding="sync"></div>
+            <div class="car-hero" id="welcome-car-hero"><img id="car-img" src="https://raw.githubusercontent.com/techniquepuits/mecamax/main/model/Renault/207.jpg" alt="صورة السيارة" width="1200" height="896" decoding="sync"></div>
 
             <div class="odometer-label">العداد الحالي للسيارة</div>
             <div class="welcome-odometer-section">
@@ -2322,7 +2322,13 @@ html { scrollbar-gutter: stable; }
         }
 
         // الصفحة الأولى: تُفتح بالضغط على شعار التطبيق من أي صفحة
+        // صورة السيارة عنصر واحد يُنقل بين الصفحتين دون إعادة إنشائه، فلا ترمش
+        function moveCarTo(id) {
+            const img = document.getElementById('car-img'), box = document.getElementById(id);
+            if (img && box && img.parentNode !== box) box.appendChild(img);
+        }
         function goHome() {
+            moveCarTo('welcome-car-hero');
             hideAllPages(appStarted ? 'home' : undefined);
             document.getElementById('welcome-page').style.display = 'flex';
             if (!onboardingStep && !isFirstRun) document.getElementById('startBtn').style.display = '';
@@ -2958,7 +2964,8 @@ html { scrollbar-gutter: stable; }
                     <div class="home-card third" onclick="expenseOpen()"><span class="home-card-title sec">المصاريف</span><div class="status-light status-none"></div></div>
                 </div>`;
             const backRow = `<button class="back-slate" onclick="goHome()">الرجوع إلى صفحة الاستقبال</button>`;
-            FORM_EL().innerHTML = `<div class="car-hero"><img src="https://raw.githubusercontent.com/techniquepuits/mecamax/main/model/Renault/207.jpg" alt="صورة السيارة" width="1200" height="896" decoding="sync"></div><div class="cards-container">${cards}${bottomRow}${backRow}</div>`;
+            FORM_EL().innerHTML = `<div class="car-hero" id="cards-car-hero"></div><div class="cards-container">${cards}${bottomRow}${backRow}</div>`;
+            moveCarTo('cards-car-hero');
         }
 
         let groupShowOff = false;

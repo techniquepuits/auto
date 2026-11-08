@@ -1111,7 +1111,7 @@
 #welcome-page { padding: 10px 20px; justify-content: flex-start; }
 #welcome-page .page-header { margin-bottom: 8px; padding-bottom: 4px; }
 .car-hero { width: 100%; height: auto; margin-top: 6px; margin-bottom: 10px; }
-.car-hero img { width: 90%; height: auto; aspect-ratio: 1200 / 896; border-radius: 12px; object-fit: contain; display: block; }
+.car-hero img { width: 80%; width: clamp(60%, calc((100svh - 568px) * 1.339), 90%); height: auto; aspect-ratio: 1200 / 896; border-radius: 12px; object-fit: contain; display: block; }
 html { scrollbar-gutter: stable; }
 .odometer-label { font-size: 13px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 6px; font-weight: 300; letter-spacing: 0.3px; }
 #welcome-page .welcome-odometer-section { margin-bottom: 24px; }
@@ -1123,10 +1123,10 @@ html { scrollbar-gutter: stable; }
 /* في صفحة البطاقات يلتصق هامش الهيدر السفلي (8px) بهامش الصورة العلوي فيبقى الأكبر منهما فقط، بينما في صفحة الاستقبال يجتمعان (8+6). نجعل الهامش 14px ليتساوى البعد العمودي */
 #cards-car-hero { margin-top: 14px; }
 #welcome-car-hero { margin-bottom: 24px; }   /* نفس المسافة بين الصورة والخانة وبين الخانة والضوء والزر */
-#editor-form-container .cards-container { gap: 10px; margin-top: 0; }
-#editor-form-container .cards-container > .home-card { padding: 16px 20px; }
+#editor-form-container .cards-container { gap: 8px; margin-top: 0; }
+#editor-form-container .cards-container > .home-card { padding: 12px 20px; }
 #editor-form-container .cards-row { gap: 8px; }
-#editor-form-container .home-card.third { padding: 14px 6px; }
+#editor-form-container .home-card.third { padding: 12px 6px; }
 #editor-form-container .back-slate { height: 50px; margin-top: 8px; }
 </style>
 </head>

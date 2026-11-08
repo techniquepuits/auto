@@ -1111,7 +1111,8 @@
 #welcome-page { padding: 10px 20px; justify-content: flex-start; }
 #welcome-page .page-header { margin-bottom: 8px; padding-bottom: 4px; }
 .car-hero { width: 100%; height: auto; margin-top: 6px; margin-bottom: 10px; }
-.car-hero img { width: 90%; height: auto; border-radius: 12px; object-fit: contain; }
+.car-hero img { width: 90%; height: auto; aspect-ratio: 1200 / 896; border-radius: 12px; object-fit: contain; display: block; }
+html { scrollbar-gutter: stable; }
 .odometer-label { font-size: 13px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 6px; font-weight: 300; letter-spacing: 0.3px; }
 #welcome-page .welcome-odometer-section { margin-bottom: 24px; }
 #welcome-page .welcome-odometer-text { box-sizing: border-box; width: 150px; padding: 9px 8px; font-size: 17px; gap: 6px; border-radius: 12px; }
@@ -1161,7 +1162,7 @@
                 </div>
             </div>
 
-            <div class="car-hero"><img src="https://raw.githubusercontent.com/techniquepuits/mecamax/main/model/Renault/207.jpg" alt="صورة السيارة"></div>
+            <div class="car-hero"><img src="https://raw.githubusercontent.com/techniquepuits/mecamax/main/model/Renault/207.jpg" alt="صورة السيارة" width="1200" height="896" decoding="sync"></div>
 
             <div class="odometer-label">العداد الحالي للسيارة</div>
             <div class="welcome-odometer-section">
@@ -2957,7 +2958,7 @@
                     <div class="home-card third" onclick="expenseOpen()"><span class="home-card-title sec">المصاريف</span><div class="status-light status-none"></div></div>
                 </div>`;
             const backRow = `<button class="back-slate" onclick="goHome()">الرجوع إلى صفحة الاستقبال</button>`;
-            FORM_EL().innerHTML = `<div class="car-hero"><img src="https://raw.githubusercontent.com/techniquepuits/mecamax/main/model/Renault/207.jpg" alt="صورة السيارة"></div><div class="cards-container">${cards}${bottomRow}${backRow}</div>`;
+            FORM_EL().innerHTML = `<div class="car-hero"><img src="https://raw.githubusercontent.com/techniquepuits/mecamax/main/model/Renault/207.jpg" alt="صورة السيارة" width="1200" height="896" decoding="sync"></div><div class="cards-container">${cards}${bottomRow}${backRow}</div>`;
         }
 
         let groupShowOff = false;

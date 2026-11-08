@@ -1111,7 +1111,7 @@
 #welcome-page { padding: 10px 20px; justify-content: flex-start; }
 #welcome-page .page-header { margin-bottom: 8px; padding-bottom: 4px; }
 .car-hero { width: 100%; height: auto; margin-top: 6px; margin-bottom: 10px; }
-.car-hero img { width: 80%; width: clamp(60%, calc((100svh - 568px) * 1.339), 90%); height: auto; aspect-ratio: 1200 / 896; border-radius: 12px; object-fit: contain; display: block; }
+.car-hero img { width: 90%; height: auto; aspect-ratio: 1200 / 896; border-radius: 12px; object-fit: contain; display: block; }
 html { scrollbar-gutter: stable; }
 .odometer-label { font-size: 13px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 6px; font-weight: 300; letter-spacing: 0.3px; }
 #welcome-page .welcome-odometer-section { margin-bottom: 24px; }
@@ -3026,15 +3026,19 @@ html { scrollbar-gutter: stable; }
             document.getElementById('mini-pop-box').innerHTML = `<div class="nm-head" style="margin:-6px -6px 10px -6px;min-height:44px;padding:10px;"><span class="nm-title">${title}</span></div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">${rows}</div><div class="nm-actions">${actions}</div>`;
             o.style.display = 'flex';
         }
-        function openItemInfo(mod, key) {
+        function openItemInfo(mod, key, keep) {
             const m = getItemMeta(mod, key), obj = records[mod] && records[mod][key];
             if (!m || !obj) return;
             const on = obj.active !== false, odo = records.car.odometer.currentEstimatedOdo;
             const row = (l, v) => `<div class="nm-row"><span class="nm-row-label">${l}</span><span class="nm-row-label"><b>${v}</b></span></div>`;
             const km = n => `<span class="num-ltr">${formatNumberWithSpace(n)}</span> كم`;
             let rows = '';
-            if (!on) rows = '<div class="nm-msg-text">هذا المؤشر غير مفعَّل.<br>فعّله من زر «تحديث» أسفل الجدول.</div>';
-            else if (m.type === 'time') {
+            if (!on) {
+                rows = '<div class="nm-msg-text">هذا المؤشر غير مفعَّل.<br>فعّله من زر «تحديث» أسفل الجدول.</div>';
+                openMini('معلومات ' + m.label, rows, `<button class="nm-x" onclick="closeSpecPop()">إغلاق</button>`);
+                return;
+            }
+            if (m.type === 'time') {
                 if (obj.lastDate) rows += row('آخر تحديث', convertDateToReadableArabic(obj.lastDate));
                 rows += row('تنتهي الصلاحية في', convertDateToReadableArabic(obj.expiryDate));
                 if (obj.lastDate) rows += row('الأيام المنقضية', `<span class="num-ltr">${formatNumberWithSpace(Math.max(0, Math.round((new Date() - new Date(obj.lastDate)) / 86400000)))}</span> يوم`);
@@ -3045,26 +3049,29 @@ html { scrollbar-gutter: stable; }
                 rows += row('الموعد القادم', 'عند ' + km(obj.max));
                 rows += row('الباقي', km(obj.max - odo));
             }
-            if (on && m.spec && obj.spec) rows += row(m.spec.label, escapeHtml(obj.spec));
-            openMini('معلومات ' + m.label, rows, `<button class="nm-x" onclick="closeSpecPop()">إغلاق</button>`);
-        }
-        function openItemLight(mod, key, keep) {
-            const m = getItemMeta(mod, key), obj = records[mod] && records[mod][key];
-            if (!m || !obj) return;
-            if (obj.active === false) { openItemInfo(mod, key); return; }
-            if (!keep) itemDraft = { hideRem: !!obj.hideRem, lightOff: !!obj.lightOff };
+            if (m.spec && obj.spec) rows += row(m.spec.label, escapeHtml(obj.spec));
+
+            // سطران في الأسفل: تعطيل الضوء، وإلغاء المؤشر من القائمة (المفتاح مفعَّل تلقائيًا)
+            if (!keep) itemDraft = { lightOff: !!obj.lightOff, off: false };
             const sw = (isOn, fn) => `<span class="tp-sw ${isOn ? 'on' : ''}" onclick="${fn}('${mod}','${key}')"></span>`;
-            let rows = `<div class="nm-row"><span class="nm-row-label">إبقاء الضوء مفعَّلاً</span>${sw(!itemDraft.lightOff, 'toggleItemLight')}</div>`;
-            if (itemDraft.lightOff) rows += `<div class="nm-msg-text" style="font-size:12px;line-height:1.7;">لن يؤثر هذا المؤشر على الحالة العامة.</div>`;
-            openMini('ضوء ' + m.label, rows, `<button class="nm-ok" onclick="itemConfirm('${mod}','${key}')">تأكيد</button><button class="nm-x" onclick="closeSpecPop()">إلغاء</button>`);
+            const note = t => `<div class="nm-msg-text" style="font-size:12px;line-height:1.7;">${t}</div>`;
+            rows += '<div class="nm-sec-sep"></div>';
+            rows += `<div class="nm-row"><span class="nm-row-label">تعطيل الضوء<br><span style="font-size:11px;opacity:.65;">(الأخضر، البرتقالي، الأحمر)</span></span>${sw(!itemDraft.lightOff, 'toggleItemLight')}</div>`;
+            if (itemDraft.lightOff) rows += note('الضوء معطَّل: لن يؤثر هذا المؤشر على الحالة العامة.');
+            rows += `<div class="nm-row"><span class="nm-row-label">إلغاء المؤشر من القائمة</span>${sw(!itemDraft.off, 'toggleItemOff')}</div>`;
+            if (itemDraft.off) rows += note('سيصبح المؤشر معطَّلًا في الجدول، وتفعّله من جديد عبر زر «تحديث».');
+            openMini('معلومات ' + m.label, rows, `<button class="nm-ok" onclick="itemConfirm('${mod}','${key}')">تأكيد</button><button class="nm-x" onclick="closeSpecPop()">إلغاء</button>`);
         }
-        function toggleItemLight(mod, key) { if (!itemDraft) return; itemDraft.lightOff = !itemDraft.lightOff; openItemLight(mod, key, true); }
-        function toggleItemHide(mod, key) { if (!itemDraft) return; itemDraft.hideRem = !itemDraft.hideRem; openItemLight(mod, key, true); }
+        // النقر على الضوء يفتح البطاقة نفسها
+        function openItemLight(mod, key) { openItemInfo(mod, key); }
+        function toggleItemLight(mod, key) { if (!itemDraft) return; itemDraft.lightOff = !itemDraft.lightOff; openItemInfo(mod, key, true); }
+        function toggleItemOff(mod, key) { if (!itemDraft) return; itemDraft.off = !itemDraft.off; openItemInfo(mod, key, true); }
         function itemConfirm(mod, key) {
             const obj = records[mod] && records[mod][key];
             if (obj && itemDraft) {
                 if (itemDraft.lightOff) obj.lightOff = true; else delete obj.lightOff;
                 delete obj.hideRem;
+                if (itemDraft.off) obj.active = false;
                 saveAppData();
             }
             closeSpecPop(); itemRefresh();

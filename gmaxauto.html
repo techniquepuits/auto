@@ -1122,6 +1122,7 @@ html { scrollbar-gutter: stable; }
 #welcome-page .start-app-btn { padding: 14px 45px; font-size: 18px; margin-top: 0; }
 /* في صفحة البطاقات يلتصق هامش الهيدر السفلي (8px) بهامش الصورة العلوي فيبقى الأكبر منهما فقط، بينما في صفحة الاستقبال يجتمعان (8+6). نجعل الهامش 14px ليتساوى البعد العمودي */
 #cards-car-hero { margin-top: 14px; }
+#welcome-car-hero { margin-bottom: 24px; }   /* نفس المسافة بين الصورة والخانة وبين الخانة والضوء والزر */
 #editor-form-container .cards-container { gap: 10px; margin-top: 0; }
 #editor-form-container .cards-container > .home-card { padding: 16px 20px; }
 #editor-form-container .cards-row { gap: 8px; }
@@ -1166,7 +1167,6 @@ html { scrollbar-gutter: stable; }
 
             <div class="car-hero" id="welcome-car-hero"><img id="car-img" src="https://raw.githubusercontent.com/techniquepuits/mecamax/main/model/Renault/207.jpg" alt="صورة السيارة" width="1200" height="896" decoding="sync"></div>
 
-            <div class="odometer-label">العداد الحالي للسيارة</div>
             <div class="welcome-odometer-section">
                 <div class="welcome-odometer-text" onclick="editWelcomeOdo()"><span class="odo-pen" data-ico="note" data-s="18"></span><span id="welcome-odo-display">120 000</span><span class="odo-km">km</span></div>
             </div>
